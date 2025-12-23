@@ -8,7 +8,7 @@ import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } f
 const chartData = [
     { month: "Feb", value: 35 },
     { month: "Mar", value: 38 },
-    { month: "Apr", value: 32 },
+    { month: "Apr", value: 32 }, 
     { month: "May", value: 50 },
     { month: "Jun", value: 42 },
     { month: "Jul", value: 50 },
