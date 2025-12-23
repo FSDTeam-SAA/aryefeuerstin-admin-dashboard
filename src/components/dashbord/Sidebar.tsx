@@ -34,6 +34,7 @@ const navigation = [
 
   { name: "Users Management", href: "/users-management", icon: User },
     { name: "Subscription", href: "/subscription-management", icon: HandCoins },
+      { name: "Order Requests", href: "/order-requests", icon: Settings },
   { name: "Setting", href: "/setting", icon: Settings },
 ];
 
