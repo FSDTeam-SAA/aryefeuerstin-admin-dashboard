@@ -83,7 +83,7 @@ export function ChangePassword() {
     const { mutate, isPending } = useMutation({
         mutationKey: ["change-password"],
         mutationFn: async ({ email, newPassword }: { email: string; newPassword: string }) => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/change-password`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, newPassword }),
