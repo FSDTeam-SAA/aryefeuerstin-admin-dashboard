@@ -27,7 +27,7 @@ interface Member {
 const TOTAL_RESULTS = 1608;
 const RESULTS_PER_PAGE = 10 ;
 
-const UserManagement: React.FC = () => {
+const MembershipStatus: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const members: Member[] = useMemo(
@@ -167,4 +167,4 @@ const UserManagement: React.FC = () => {
   );
 };
 
-export default UserManagement;
+export default MembershipStatus;

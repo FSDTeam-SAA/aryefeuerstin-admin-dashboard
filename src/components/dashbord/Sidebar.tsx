@@ -1,51 +1,57 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Package,
-  List,
-  Store,
-  User,
   Settings,
   LogOut,
   Menu,
   X,
   Scooter,
-} from "lucide-react"
-import Image from "next/image"
-
+  DollarSign,
+  Users,
+  CarFront,
+  User,
+  HandCoins,
+} from "lucide-react";
+import Image from "next/image";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: " Driver assignment", href: "/dashboard/driver-assignment", icon: Scooter },
-  { name: "Applications", href: "/applications", icon: Package },
-  { name: "Booking", href: "/booking", icon: List },
-  { name: "User Management", href: "/dashboard/user-management", icon: User },
-  { name: "Revenue", href: "/revenue", icon: Store },
+  {
+    name: " Driver assignment",
+    href: "/driver-assignment",
+    icon: Scooter,
+  },
+  { name: "Membership status", href: "/membership-status", icon: Users },
+  { name: "Payment status", href: "/payment-status", icon: DollarSign },
+  { name: "Pickup history", href: "/pickup-history", icon: CarFront },
+
+  { name: "Users Management", href: "/users-management", icon: User },
+    { name: "Subscription", href: "/subscription-management", icon: HandCoins },
   { name: "Setting", href: "/setting", icon: Settings },
-] 
+];
 
 export function Sidebar() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const pathname = usePathname()
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pathname = usePathname();
 
-  const handleLogout = () => setIsModalOpen(true)
+  const handleLogout = () => setIsModalOpen(true);
 
-  const cancelLogout = () => setIsModalOpen(false)
+  const cancelLogout = () => setIsModalOpen(false);
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col bg-[#FFFFFF] text-white pt-16 lg:pt-3">
       {/* Logo */}
       <div className="hidden lg:flex h-16 items-center justify-center px-6 pt-10 ">
         <Image
-          src={'/logo.png'}
+          src={"/logo.png"}
           width={500}
           height={500}
           alt="logo"
@@ -56,7 +62,8 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-3 px-3 py-4 mt-6">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.name}
@@ -72,7 +79,7 @@ export function Sidebar() {
               <item.icon className="h-5 w-5" />
               <span>{item.name}</span>
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -88,7 +95,7 @@ export function Sidebar() {
         </Button>
       </div>
     </div>
-  )
+  );
 
   return (
     <>
@@ -131,8 +138,12 @@ export function Sidebar() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold text-gray-900">Confirm Logout</h2>
-            <p className="mt-2 text-sm text-gray-600">Are you sure you want to log out?</p>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Confirm Logout
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to log out?
+            </p>
             <div className="mt-6 flex justify-end gap-3">
               <Button
                 variant="outline"
@@ -141,10 +152,7 @@ export function Sidebar() {
               >
                 Cancel
               </Button>
-              <Button
-             
-                className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white"
-              >
+              <Button className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white">
                 Log Out
               </Button>
             </div>
@@ -152,5 +160,5 @@ export function Sidebar() {
         </div>
       )}
     </>
-  )
+  );
 }

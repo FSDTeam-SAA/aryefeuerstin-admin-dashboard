@@ -1,10 +1,10 @@
 import React from 'react'
-import UserManagement from './_components/UserManagement'
+import PickupHistory from './_components/PickupHistory'
 
 function page() {
   return (
     <div>
-        <UserManagement />
+        <PickupHistory />
     </div>
   )
 }

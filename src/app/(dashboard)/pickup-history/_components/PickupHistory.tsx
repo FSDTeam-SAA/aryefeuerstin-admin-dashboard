@@ -12,7 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MembershipStatusModal } from "@/components/Modal/MembershipStatusModal";
+import { Badge } from "@/components/ui/badge";
+import { PickupHistoryModal } from "@/components/Modal/PickupHistoryModal";
 
 interface Member {
   id: number;
@@ -25,7 +26,7 @@ interface Member {
 const TOTAL_RESULTS = 1608;
 const RESULTS_PER_PAGE = 10;
 
-const DriverAssignment: React.FC = () => {
+const PickupHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const members: Member[] = useMemo(
@@ -41,14 +42,6 @@ const DriverAssignment: React.FC = () => {
   );
 
   const totalPages = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
-
-  const handleApprove = (id: number): void => {
-    console.log("Approve member:", id);
-  };
-
-  const handleRemove = (id: number): void => {
-    console.log("Remove member:", id);
-  };
 
   const getPageNumbers = () => {
     const pages = [];
@@ -75,19 +68,13 @@ const DriverAssignment: React.FC = () => {
       <div className="">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Driver Management
-              </h1>
-              <div className="flex items-center gap-2 mt-2 text-sm">
-                <span className="text-gray-500">Dashboard</span>
-                <span className="text-gray-500">{">"}</span>
-                <span className="text-blue-600 font-medium">
-                  Driver Management
-                </span>
-              </div>
-            </div>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Pickup history
+          </h1>
+          <div className="flex items-center gap-2 mt-2 text-sm">
+            <span className="text-gray-500">Dashboard</span>
+            <span className="text-gray-500">{">"}</span>
+            <span className="text-gray-500">Pickup history</span>
           </div>
         </div>
 
@@ -95,17 +82,17 @@ const DriverAssignment: React.FC = () => {
         <div className="bg-white rounded-lg shadow">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50 border-b">
-                <TableHead className="font-semibold text-gray-700">
-                  Driver Management
+              <TableRow className="bg-white border-b-2">
+                <TableHead className="font-semibold text-gray-900">
+                  Dealership Name
                 </TableHead>
-                <TableHead className="font-semibold text-gray-700">
+                <TableHead className="font-semibold text-gray-900">
                   Date
                 </TableHead>
-                <TableHead className="font-semibold text-gray-700 text-center">
+                <TableHead className="font-semibold text-gray-900">
                   Email
                 </TableHead>
-                <TableHead className="text-right font-semibold text-gray-700">
+                <TableHead className="text-right font-semibold text-gray-900">
                   Action
                 </TableHead>
               </TableRow>
@@ -113,7 +100,7 @@ const DriverAssignment: React.FC = () => {
 
             <TableBody>
               {members.map((member) => (
-                <TableRow key={member.id} className="hover:bg-gray-50 border-b">
+                <TableRow key={member.id} className="border-b hover:bg-gray-50">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
@@ -132,31 +119,17 @@ const DriverAssignment: React.FC = () => {
                   </TableCell>
 
                   <TableCell className="text-gray-700">{member.date}</TableCell>
-                  <TableCell className="text-gray-700 text-center">{member.email}</TableCell>
+                  <TableCell className="text-gray-700">{member.email}</TableCell>
 
                   <TableCell>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white px-4"
-                        onClick={() => handleApprove(member.id)}
-                      >
-                        Approve
-                      </Button>
-
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="bg-red-500 hover:bg-red-600 text-white px-4"
-                        onClick={() => handleRemove(member.id)}
-                      >
-                        Remove
-                      </Button>
-
-                      <MembershipStatusModal />
+                    <div className="flex justify-end items-center gap-2">
+                      <Badge className="bg-green-500 hover:bg-green-600 text-white px-4 py-1">
+                        Completed
+                      </Badge>
+                      <PickupHistoryModal />
                     </div>
                   </TableCell>
-                </TableRow>
+                </TableRow> 
               ))}
             </TableBody>
           </Table>
@@ -164,7 +137,7 @@ const DriverAssignment: React.FC = () => {
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t">
             <p className="text-sm text-gray-600">
-              Showing 1 to 8 of 12 results
+              Showing 1 to 6 of 12 results
             </p>
 
             <div className="flex items-center gap-1">
@@ -181,14 +154,21 @@ const DriverAssignment: React.FC = () => {
               {getPageNumbers().map((page, index) => (
                 <React.Fragment key={index}>
                   {page === "..." ? (
-                    <span className="px-3 py-1 text-gray-500">...</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-300 h-9 min-w-9"
+                      disabled
+                    >
+                      ...
+                    </Button>
                   ) : (
                     <Button
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       className={
                         currentPage === page
-                          ? "bg-orange-400 hover:bg-orange-500 text-white h-9 min-w-9"
+                          ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
                           : "border-gray-300 h-9 min-w-9"
                       }
                       onClick={() => setCurrentPage(page as number)}
@@ -218,4 +198,4 @@ const DriverAssignment: React.FC = () => {
   );
 };
 
-export default DriverAssignment;
+export default PickupHistory;
