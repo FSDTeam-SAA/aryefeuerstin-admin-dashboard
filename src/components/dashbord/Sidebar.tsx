@@ -16,18 +16,20 @@ import {
   LogOut,
   Menu,
   X,
+  Scooter,
 } from "lucide-react"
 import Image from "next/image"
 
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+    { name: " Driver assignment", href: "/dashboard/driver-assignment", icon: Scooter },
   { name: "Applications", href: "/applications", icon: Package },
   { name: "Booking", href: "/booking", icon: List },
-  { name: "User Management", href: "/user-management", icon: User },
+  { name: "User Management", href: "/dashboard/user-management", icon: User },
   { name: "Revenue", href: "/revenue", icon: Store },
   { name: "Setting", href: "/setting", icon: Settings },
-]
+] 
 
 export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)

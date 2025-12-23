@@ -25,7 +25,7 @@ interface Member {
 }
 
 const TOTAL_RESULTS = 1608;
-const RESULTS_PER_PAGE = 8;
+const RESULTS_PER_PAGE = 10 ;
 
 const UserManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
