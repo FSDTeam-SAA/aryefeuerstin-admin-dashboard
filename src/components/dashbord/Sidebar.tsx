@@ -20,22 +20,23 @@ import {
   HandCoins,
 } from "lucide-react";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   {
     name: " Driver assignment",
-    href: "/driver-assignment",
+    href: "/dashboard/driver-assignment",
     icon: Scooter,
   },
-  { name: "Membership status", href: "/membership-status", icon: Users },
-  { name: "Payment status", href: "/payment-status", icon: DollarSign },
-  { name: "Pickup history", href: "/pickup-history", icon: CarFront },
+  { name: "Membership status", href: "/dashboard/membership-status", icon: Users },
+  { name: "Payment status", href: "/dashboard/payment-status", icon: DollarSign },
+  { name: "Pickup history", href: "/dashboard/pickup-history", icon: CarFront },
 
-  { name: "Users Management", href: "/users-management", icon: User },
-    { name: "Subscription", href: "/subscription-management", icon: HandCoins },
-      { name: "Order Requests", href: "/order-requests", icon: Settings },
-  { name: "Setting", href: "/setting", icon: Settings },
+  { name: "Users Management", href: "/dashboard/users-management", icon: User },
+    { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins },
+      { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
+  { name: "Setting", href: "/dashboard/setting", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -153,7 +154,7 @@ export function Sidebar() {
               >
                 Cancel
               </Button>
-              <Button className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white">
+              <Button onClick={() => signOut({callbackUrl: "/login"})} className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white">
                 Log Out
               </Button>
             </div>

@@ -38,7 +38,7 @@ export default function ForgetPassword() {
     const { mutate, isPending } = useMutation({
         mutationKey: ["forgot-password"],
         mutationFn: (email: string) =>
-            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forgot-password`, {
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,13 +48,15 @@ export default function ForgetPassword() {
 
         onSuccess: (data, email) => {
 
-            if (!data?.success) {
+            if (!data?.status) {
                 toast.error(data?.message || "Something went wrong");
                 return;
             }
 
             toast.success(data?.message || "Email sent successfully!");
+            console.log("sent ")
             router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+            console.log("sent 1")
         },
 
         onError: (error) => {
