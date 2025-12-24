@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Lock, Mail } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().min(1, "Email is required"),
@@ -76,7 +77,7 @@ export default function LoginForm() {
         toast.error(res.error);
         return;
       }
-      
+
       window.location.href = "/";
     } catch (error) {
       toast.error((error as Error).message || "Something went wrong");
@@ -124,14 +125,18 @@ export default function LoginForm() {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      {...field}
-                      placeholder="hello@example.com"
-                    />
+                    <div className="relative">
+                      <Input
+                        type="email"
+                        {...field}
+                        placeholder="hello@example.com"
+                        className="pl-12 border-[#BFC1BF] py-5 border" 
+                      />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#616161]" />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,13 +148,17 @@ export default function LoginForm() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PasswordInput
-                      {...field}
-                      placeholder="••••••••"
-                    />
+                    <div className="relative">
+                      <PasswordInput
+                        {...field}
+                        placeholder="••••••••"
+                        className="pl-12 border-[#BFC1BF] py-5 border"
+                      />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#616161]" />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,12 +199,13 @@ export default function LoginForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-4 bg-[#31B8FA] hover:bg-[#31B8FA]/90 text-white text-[16px] py-5 shadow-md hover:shadow-lg transition"
+              className="w-full  bg-[#31B8FA] hover:bg-[#31B8FA]/90 text-white text-[16px] py-5 shadow-md hover:shadow-lg transition"
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
         </Form>
+
       </div>
     </div>
   );

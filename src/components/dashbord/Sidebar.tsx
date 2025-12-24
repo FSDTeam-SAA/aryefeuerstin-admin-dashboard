@@ -20,7 +20,7 @@ import {
   HandCoins,
 } from "lucide-react";
 import Image from "next/image";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -34,8 +34,8 @@ const navigation = [
   { name: "Pickup history", href: "/dashboard/pickup-history", icon: CarFront },
 
   { name: "Users Management", href: "/dashboard/users-management", icon: User },
-    { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins },
-      { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
+  { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins },
+  { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
   { name: "Setting", href: "/dashboard/setting", icon: Settings },
 ];
 
@@ -43,8 +43,11 @@ export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
+
 
   const handleLogout = () => setIsModalOpen(true);
+
 
   const cancelLogout = () => setIsModalOpen(false);
 
@@ -86,15 +89,32 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="p-3">
-        <Button
-          onClick={handleLogout}
-          variant="ghost"
-          className="w-full justify-start gap-3 text-white hover:bg-[#F0217A] hover:text-white"
-        >
-          <LogOut className="h-5 w-5" />
-          Log Out
-        </Button>
+      <div className="max-w-xs mx-auto p-6 bg-white rounded-lg  text-center">
+        {/* Avatar */}
+        <div className="flex flex-col items-center">
+          <div className="flex">
+            <Image
+              src={session?.user?.profileImage || ""} // replace with user avatar
+              alt="User Avatar"
+              width={80}
+              height={80}
+              className="w-10 h-10 rounded-full mb-4"
+            />
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Jenny Wilson</h2>
+              <p className="text-sm text-gray-500 mb-4">example@example.com</p>
+
+            </div>
+          </div>
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-[#F2415A] text-[#F2415A] rounded-lg hover:bg-red-50 transition"
+          >
+            <LogOut size={18} />
+            Log out
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -121,9 +141,8 @@ export function Sidebar() {
 
       {/* ✅ Mobile sidebar (Slide-in) */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-[#34813C] text-white transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-[#34813C] text-white transition-transform duration-300 ease-in-out lg:hidden ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <SidebarContent />
       </div>
@@ -154,7 +173,7 @@ export function Sidebar() {
               >
                 Cancel
               </Button>
-              <Button onClick={() => signOut({callbackUrl: "/login"})} className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white">
+              <Button onClick={() => signOut({ callbackUrl: "/login" })} className="bg-[#2D7A3E] hover:bg-[#3A8F4E] text-white">
                 Log Out
               </Button>
             </div>

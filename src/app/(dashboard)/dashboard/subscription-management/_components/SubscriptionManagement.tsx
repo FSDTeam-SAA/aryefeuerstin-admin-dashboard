@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,8 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { SubscriptionManagementModal } from "@/components/Modal/SubscriptionManagementModal";
-import Link from "next/link";
 
 interface Subscription {
   id: number;
@@ -102,15 +100,12 @@ const SubscriptionManagement: React.FC = () => {
 
   const totalPages = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
 
-  const handleDelete = (id: number): void => {
-    console.log("Delete subscription:", id);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        {/* <div className="mb-6 flex items-center justify-between">
           <Button className="bg-cyan-400 hover:bg-cyan-500 text-white px-6">
             Pricing Plans
           </Button>
@@ -120,14 +115,14 @@ const SubscriptionManagement: React.FC = () => {
               <Plus className="h-4 w-4" /> Create New Subscription
             </Button>
           </Link>
-        </div>
+        </div> */}
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="font-medium text-gray-700">
+                <TableHead className="font-medium py-3 px-10 text-gray-700">
                   Plan Name
                 </TableHead>
                 <TableHead className="font-medium text-gray-700">
@@ -145,16 +140,16 @@ const SubscriptionManagement: React.FC = () => {
                 <TableHead className="font-medium text-gray-700">
                   Status
                 </TableHead>
-                <TableHead className="text-right font-medium text-gray-700">
+                {/* <TableHead className="text-right font-medium text-gray-700">
                   Action
-                </TableHead>
+                </TableHead> */}
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {subscriptions.map((subscription) => (
                 <TableRow key={subscription.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium py-10 px-10">
                     {subscription.planName}
                   </TableCell>
 
@@ -177,7 +172,7 @@ const SubscriptionManagement: React.FC = () => {
                       {subscription.status}
                     </Badge>
                   </TableCell>
-
+{/* 
                   <TableCell>
                     <div className="flex justify-end gap-2">
                       <SubscriptionManagementModal />
@@ -189,7 +184,7 @@ const SubscriptionManagement: React.FC = () => {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
