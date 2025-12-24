@@ -75,7 +75,7 @@ const PersonalInformation: React.FC = () => {
     }
   }, [data]);
 
-  // ================= Profile update mutation =================
+
   const profileMutation = useMutation({
     mutationFn: async (payload: PersonalInfoForm) => {
       if (!token) throw new Error("Unauthorized");
@@ -147,7 +147,7 @@ const PersonalInformation: React.FC = () => {
     },
   });
 
-  // ================= Handlers =================
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     profileMutation.mutate(formData);
