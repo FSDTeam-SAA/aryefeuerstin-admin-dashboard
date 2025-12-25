@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,188 +11,218 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PickupHistoryModal } from "@/components/Modal/PickupHistoryModal";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
-interface Member {
-  id: number;
-  name: string;
-  date: string;
+/* ================= TYPES ================= */
+
+interface PickupItem {
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  avatar?: string;
+  phone: string;
+  pickupAddress: string;
+  pickupInstructions: string;
+  returnStore: string;
+  numberOfPackages: number;
+  status: string;
+  createdAt: string;
 }
 
-const TOTAL_RESULTS = 1608;
+interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: {
+    data: PickupItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalData: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
 const RESULTS_PER_PAGE = 10;
 
+/* ================= COMPONENT ================= */
+
 const PickupHistory: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data: session } = useSession();
+  const TOKEN = session?.user?.accessToken;
 
-  const members: Member[] = useMemo(
-    () =>
-      Array.from({ length: RESULTS_PER_PAGE }, (_, index) => ({
-        id: (currentPage - 1) * RESULTS_PER_PAGE + index + 1,
-        name: "John Smith",
-        date: "15/8/2025",
-        email: "example@gmail.com",
-        avatar: "/placeholder.svg",
-      })),
-    [currentPage]
-  );
+  const { data, isLoading } = useQuery<ApiResponse>({
+    queryKey: ["pickup-history", currentPage],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/admin/pickup-history?status=COMPLETED&page=${currentPage}&limit=${RESULTS_PER_PAGE}`, {
+          method : "GET",
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch pickup history");
+      return res.json();
+    },
+  });
 
-  const totalPages = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
+  const pickups = data?.data.data ?? [];
+  const pagination = data?.data.pagination;
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage, "...", totalPages);
-      }
-    }
-    return pages;
-  };
+  const totalPages = Number(pagination?.totalPages || 1);
+  const hasNextPage = pagination?.hasNextPage;
+  const hasPrevPage = pagination?.hasPrevPage;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Pickup history
-          </h1>
-          <div className="flex items-center gap-2 mt-2 text-sm">
-            <span className="text-gray-500">Dashboard</span>
-            <span className="text-gray-500">{">"}</span>
-            <span className="text-gray-500">Pickup history</span>
-          </div>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Pickup history
+        </h1>
+        <div className="flex items-center gap-2 mt-2 text-sm">
+          <span className="text-gray-500">Dashboard</span>
+          <span className="text-gray-500">{">"}</span>
+          <span className="text-gray-500">Pickup history</span>
         </div>
+      </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-lg shadow">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-white border-b-2">
-                <TableHead className="font-semibold text-gray-900">
-                  Dealership Name
-                </TableHead>
-                <TableHead className="font-semibold text-gray-900">
-                  Date
-                </TableHead>
-                <TableHead className="font-semibold text-gray-900">
-                  Email
-                </TableHead>
-                <TableHead className="text-right font-semibold text-gray-900">
-                  Action
-                </TableHead>
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-white border-b-2">
+              <TableHead className="font-semibold text-gray-900">Dealership Name</TableHead>
+              <TableHead className="font-semibold text-gray-900">Date</TableHead>
+              <TableHead className="font-semibold text-gray-900">Email</TableHead>
+              <TableHead className="font-semibold text-gray-900">Phone</TableHead>
+              <TableHead className="font-semibold text-gray-900">Pickup Address</TableHead>
+              <TableHead className="font-semibold text-gray-900">Return Store</TableHead>
+              <TableHead className="font-semibold text-gray-900">Packages</TableHead>
+              <TableHead className="text-right font-semibold text-gray-900">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  Loading pickup history...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id} className="border-b hover:bg-gray-50">
+            ) : pickups.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  No pickup history found
+                </TableCell>
+              </TableRow>
+            ) : (
+              pickups.map((item) => (
+                <TableRow key={item._id} className="border-b hover:bg-gray-50">
+                  {/* Name */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 py-2">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={member.avatar} alt={member.name} />
                         <AvatarFallback className="bg-gray-200 text-gray-700">
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                          {item.firstName[0]}{item.lastName[0]}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-medium text-gray-900">
-                        {member.name}
+                        {item.firstName} {item.lastName}
                       </span>
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-gray-700">{member.date}</TableCell>
-                  <TableCell className="text-gray-700">{member.email}</TableCell>
+                  {/* Date */}
+                  <TableCell className="text-gray-700">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </TableCell>
 
+                  {/* Email */}
+                  <TableCell className="text-gray-700">{item.email}</TableCell>
+
+                  {/* Phone */}
+                  <TableCell className="text-gray-700">{item.phone}</TableCell>
+
+                  {/* Pickup Address */}
+                  <TableCell className="text-gray-700">{item.pickupAddress}</TableCell>
+
+                  {/* Return Store */}
+                  <TableCell className="text-gray-700">{item.returnStore}</TableCell>
+
+                  {/* Packages */}
+                  <TableCell className="text-gray-700">{item.numberOfPackages}</TableCell>
+
+                  {/* Action */}
                   <TableCell>
                     <div className="flex justify-end items-center gap-2">
                       <Badge className="bg-green-500 hover:bg-green-600 text-white px-4 py-1">
-                        Completed
+                        {item.status}
                       </Badge>
-                      <PickupHistoryModal />
+
+                      {/* Only View Button */}
+                      <PickupHistoryModal pickupId={item._id} />
                     </div>
                   </TableCell>
-                </TableRow> 
-              ))}
-            </TableBody>
-          </Table>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
-          {/* Pagination */}
+        {/* Pagination */}
+        {pagination && (
           <div className="flex items-center justify-between px-6 py-4 border-t">
             <p className="text-sm text-gray-600">
-              Showing 1 to 6 of 12 results
+              Page {currentPage} of {totalPages}
             </p>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"
                 className="h-9 w-9 border-gray-300"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={!hasPrevPage}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              {getPageNumbers().map((page, index) => (
-                <React.Fragment key={index}>
-                  {page === "..." ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-300 h-9 min-w-9"
-                      disabled
-                    >
-                      ...
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className={
-                        currentPage === page
-                          ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
-                          : "border-gray-300 h-9 min-w-9"
-                      }
-                      onClick={() => setCurrentPage(page as number)}
-                    >
-                      {page}
-                    </Button>
-                  )}
-                </React.Fragment>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  size="sm"
+                  variant={currentPage === page ? "default" : "outline"}
+                  className={
+                    currentPage === page
+                      ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
+                      : "border-gray-300 h-9 min-w-9"
+                  }
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Button>
               ))}
 
               <Button
                 variant="outline"
                 size="icon"
                 className="h-9 w-9 border-gray-300"
-                disabled={currentPage === totalPages}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                disabled={!hasNextPage}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

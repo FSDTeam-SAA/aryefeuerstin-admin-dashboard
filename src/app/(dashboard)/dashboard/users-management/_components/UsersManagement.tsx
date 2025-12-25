@@ -80,7 +80,7 @@ const UsersManagement: React.FC = () => {
       <div className="bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50 border-b text-black font-bold text-base">
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
@@ -110,7 +110,7 @@ const UsersManagement: React.FC = () => {
                 <TableRow key={user._id}>
                   {/* User */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 py-2">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={user.profileImage || ""} />
                         <AvatarFallback>
