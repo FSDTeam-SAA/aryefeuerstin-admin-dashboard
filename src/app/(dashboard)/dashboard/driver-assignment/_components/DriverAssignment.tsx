@@ -170,7 +170,7 @@ const DriverAssignment: React.FC = () => {
                             {driver.lastName[0]}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">
+                        <span className="font-medium text-base">
                           {driver.firstName} {driver.lastName}
                         </span>
                       </div>

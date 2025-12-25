@@ -119,7 +119,7 @@ const MembershipStatus: React.FC = () => {
                 memberships.map((member) => (
                   <TableRow key={member._id} className="hover:bg-gray-50">
                     <TableCell>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 py-2">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback>
                             {member.email

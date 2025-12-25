@@ -61,16 +61,13 @@ const UsersManagement: React.FC = () => {
   const pagination = data?.data?.paginationInfo;
 
   const totalPages = Number(pagination?.totalPages || 1);
-  const hasNextPage = pagination?.hasNextPage;
-  const hasPrevPage = pagination?.hasPrevPage;
+  const totalResults = pagination?.totalData || 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Users Management
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Users Management</h1>
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
           Dashboard <span>{">"}</span> Users Management
         </div>
@@ -131,9 +128,7 @@ const UsersManagement: React.FC = () => {
                   <TableCell>{user.phone || "-"}</TableCell>
 
                   {/* Gender */}
-                  <TableCell className="capitalize">
-                    {user.gender || "-"}
-                  </TableCell>
+                  <TableCell className="capitalize">{user.gender || "-"}</TableCell>
 
                   {/* Driver Status */}
                   <TableCell>
@@ -162,9 +157,7 @@ const UsersManagement: React.FC = () => {
                   {/* Expire Date */}
                   <TableCell>
                     {user.subscriptionExpireDate
-                      ? new Date(
-                          user.subscriptionExpireDate
-                        ).toLocaleDateString()
+                      ? new Date(user.subscriptionExpireDate).toLocaleDateString()
                       : "-"}
                   </TableCell>
 
@@ -177,19 +170,22 @@ const UsersManagement: React.FC = () => {
             )}
           </TableBody>
         </Table>
-        {/* Pagination */}
+
+        {/* Agar-style Pagination */}
         <div className="flex items-center justify-between px-6 py-4 border-t">
           <p className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
+            Showing {users.length === 0 ? 0 : (currentPage - 1) * RESULTS_PER_PAGE + 1} to{" "}
+            {Math.min(currentPage * RESULTS_PER_PAGE, totalResults)} of {totalResults} results
           </p>
 
           <div className="flex items-center gap-2">
-            {/* Prev */}
+            {/* Previous */}
             <Button
               variant="outline"
               size="icon"
-              disabled={!hasPrevPage}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="h-9 w-9 border-gray-300"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -200,12 +196,12 @@ const UsersManagement: React.FC = () => {
                 key={page}
                 size="sm"
                 variant={currentPage === page ? "default" : "outline"}
+                onClick={() => setCurrentPage(page)}
                 className={
                   currentPage === page
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : ""
+                    ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
+                    : "border-gray-300 h-9 min-w-9"
                 }
-                onClick={() => setCurrentPage(page)}
               >
                 {page}
               </Button>
@@ -215,8 +211,9 @@ const UsersManagement: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              disabled={!hasNextPage}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="h-9 w-9 border-gray-300"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
