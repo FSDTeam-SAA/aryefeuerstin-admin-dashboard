@@ -120,18 +120,22 @@ const DriverAssignment: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Driver Management
-        </h1>
-        <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-          Dashboard <span>{">"}</span>
-          <span className="text-blue-600 font-medium">
-            Driver Management
-          </span>
+      <div>
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Driver Management
+              </h1>
+              <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                <span>Dashboard</span>
+                <span>{">"}</span>
+                <span className="text-blue-600 font-medium">Driver Management</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow">
@@ -208,20 +212,14 @@ const DriverAssignment: React.FC = () => {
                       <Ban className="w-6 h-6 text-red-600" />
                     )}
 
-                    <DriverAssignmentModal driverId={driver._id} />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
-        {/* Pagination (SAME AS USERS MANAGEMENT) */}
-        {pagination && (
-          <div className="flex items-center justify-between px-6 py-4 border-t">
-            <p className="text-sm text-gray-600">
-              Page {currentPage} of {totalPages}
-            </p>
+                      {/* Modal */}
+                      <DriverAssignmentModal driverId={driver?._id} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
             <div className="flex items-center gap-2">
               {/* Prev */}

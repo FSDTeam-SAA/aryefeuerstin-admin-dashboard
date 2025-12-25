@@ -52,7 +52,7 @@ export const authOptions: NextAuthOptions = {
 
                     return {
                         id: user?._id,
-                        name: user?.name,
+                        name: user?.firstName + " " + user?.lastName,
                         email: user?.email,
                         phoneNumber: user?.phoneNumber,
                         role: user?.role,

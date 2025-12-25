@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
+  // LayoutDashboard,
   Settings,
   LogOut,
   Menu,
@@ -23,7 +23,7 @@ import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  // { name: "Dashboard", href: "/", icon: LayoutDashboard },
   {
     name: " Driver assignment",
     href: "/dashboard/driver-assignment",
@@ -35,7 +35,7 @@ const navigation = [
 
   { name: "Users Management", href: "/dashboard/users-management", icon: User },
   { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins },
-  { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
+  // { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
   { name: "Setting", href: "/dashboard/setting", icon: Settings },
 ];
 
@@ -44,7 +44,8 @@ export function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
-
+ 
+  console.log(session)
 
   const handleLogout = () => setIsModalOpen(true);
 
@@ -77,8 +78,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 h-[48px] text-base font-semibold rounded-md transition-colors",
                 isActive
-                  ? "bg-[#CD9B46] hover:bg-[#CD9B46] text-[#FFFFFF]"
-                  : "text-[#616161] hover:bg-[#CD9B46] hover:text-white"
+                  ? "bg-[#CD9B46] hover:bg-[#CD9B46]/90 text-[#FFFFFF]"
+                  : "text-[#616161] hover:bg-[#CD9B46]/60 hover:text-white"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -92,17 +93,17 @@ export function Sidebar() {
       <div className="max-w-xs mx-auto p-6 bg-white rounded-lg  text-center">
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <div className="flex">
+          <div className="flex gap-3">
             <Image
-              src={session?.user?.profileImage || ""} // replace with user avatar
+              src={session?.user?.profileImage || ""} 
               alt="User Avatar"
               width={80}
               height={80}
               className="w-10 h-10 rounded-full mb-4"
             />
             <div>
-              <h2 className="text-lg font-semibold text-gray-800">Jenny Wilson</h2>
-              <p className="text-sm text-gray-500 mb-4">example@example.com</p>
+              <h2 className="text-[12px] font-semibold text-gray-800">{session?.user?.name}</h2>
+              <p className="text-sm text-gray-500 mb-4">{session?.user?.email}</p>
 
             </div>
           </div>
