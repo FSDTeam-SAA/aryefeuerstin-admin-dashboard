@@ -42,6 +42,8 @@ interface ApiResponse {
   };
 }
 
+const RESULTS_PER_PAGE = 10;
+
 /* ================= COMPONENT ================= */
 
 const DriverAssignment: React.FC = () => {
@@ -55,7 +57,7 @@ const DriverAssignment: React.FC = () => {
     enabled: !!TOKEN,
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/all-sellers?page=${currentPage}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/all-sellers?page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
         {
           headers: {
             Authorization: `Bearer ${TOKEN}`,
@@ -106,10 +108,8 @@ const DriverAssignment: React.FC = () => {
 
   const drivers = data?.data.sellers ?? [];
   const pagination = data?.data.paginationInfo;
-
   const totalPages = Number(pagination?.totalPages || 1);
-  const hasNextPage = pagination?.hasNextPage;
-  const hasPrevPage = pagination?.hasPrevPage;
+  const totalResults = Number(pagination?.totalData || 0);
 
   const handleApprove = (id: string) => approveMutation.mutate(id);
   const handleReject = (id: string) => rejectMutation.mutate(id);
@@ -131,124 +131,128 @@ const DriverAssignment: React.FC = () => {
               <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
                 <span>Dashboard</span>
                 <span>{">"}</span>
-                <span className="text-blue-600 font-medium">Driver Management</span>
+                <span className="text-blue-600 font-medium">
+                  Driver Management
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50 border-b text-black font-bold text-lg">
-              <TableHead>Driver</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-center">Email</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
+        {/* Table */}
+        <div className="bg-white rounded-lg shadow">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50 border-b text-black font-bold text-lg">
+                <TableHead>Driver</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-center">Email</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
 
-          <TableBody>
-            {drivers.map((driver) => (
-              <TableRow key={driver._id} className="hover:bg-gray-50">
-                {/* Driver */}
-                <TableCell>
-                  <div className="flex items-center gap-3 py-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={driver.profileImage || ""} />
-                      <AvatarFallback>
-                        {driver.firstName[0]}
-                        {driver.lastName[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">
-                      {driver.firstName} {driver.lastName}
-                    </span>
-                  </div>
-                </TableCell>
-
-                {/* Date */}
-                <TableCell>
-                  {driver.driverApprovedAt
-                    ? new Date(driver.driverApprovedAt).toLocaleDateString()
-                    : "—"}
-                </TableCell>
-
-                {/* Email */}
-                <TableCell className="text-center">
-                  {driver.email}
-                </TableCell>
-
-                {/* Action */}
-                <TableCell>
-                  <div className="flex justify-end items-center gap-2">
-                    {driver.driverRequestStatus === "PENDING" && (
-                      <>
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                          onClick={() => handleApprove(driver._id)}
-                          disabled={approveMutation.isPending}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleReject(driver._id)}
-                          disabled={rejectMutation.isPending}
-                        >
-                          Reject
-                        </Button>
-                      </>
-                    )}
-
-                    {driver.driverRequestStatus === "APPROVED" && (
-                      <CircleCheck className="w-6 h-6 text-green-600" />
-                    )}
-
-                    {driver.driverRequestStatus === "REJECTED" && (
-                      <Ban className="w-6 h-6 text-red-600" />
-                    )}
-
-                      {/* Modal */}
-                      <DriverAssignmentModal driverId={driver?._id} />
-                    </div>
+            <TableBody>
+              {drivers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-6">
+                    No drivers found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                drivers.map((driver) => (
+                  <TableRow key={driver._id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <div className="flex items-center gap-3 py-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={driver.profileImage || ""} />
+                          <AvatarFallback>
+                            {driver.firstName[0]}
+                            {driver.lastName[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">
+                          {driver.firstName} {driver.lastName}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      {driver.driverApprovedAt
+                        ? new Date(driver.driverApprovedAt).toLocaleDateString()
+                        : "—"}
+                    </TableCell>
+
+                    <TableCell className="text-center">{driver.email}</TableCell>
+
+                    <TableCell>
+                      <div className="flex justify-end items-center gap-2">
+                        {driver.driverRequestStatus === "PENDING" && (
+                          <>
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => handleApprove(driver._id)}
+                              disabled={approveMutation.isPending}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleReject(driver._id)}
+                              disabled={rejectMutation.isPending}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+
+                        {driver.driverRequestStatus === "APPROVED" && (
+                          <CircleCheck className="w-6 h-6 text-green-600" />
+                        )}
+
+                        {driver.driverRequestStatus === "REJECTED" && (
+                          <Ban className="w-6 h-6 text-red-600" />
+                        )}
+
+                        <DriverAssignmentModal driverId={driver._id} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
 
+          {/* Pagination */}
+          <div className="flex items-center justify-between px-6 py-4 border-t">
+            <p className="text-sm text-gray-600">
+              Showing {(currentPage - 1) * RESULTS_PER_PAGE + 1} to{" "}
+              {Math.min(currentPage * RESULTS_PER_PAGE, totalResults)} of{" "}
+              {totalResults} results
+            </p>
+
             <div className="flex items-center gap-2">
-              {/* Prev */}
+              {/* Previous */}
               <Button
                 variant="outline"
                 size="icon"
-                disabled={!hasPrevPage}
-                onClick={() =>
-                  setCurrentPage((p) => Math.max(1, p - 1))
-                }
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              {/* Page Numbers */}
-              {Array.from(
-                { length: totalPages },
-                (_, i) => i + 1
-              ).map((page) => (
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <Button
                   key={page}
                   size="sm"
-                  variant={
-                    currentPage === page ? "default" : "outline"
-                  }
+                  variant={currentPage === page ? "default" : "outline"}
                   className={
                     currentPage === page
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : ""
+                      ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
+                      : "border-gray-300 h-9 min-w-9"
                   }
                   onClick={() => setCurrentPage(page)}
                 >
@@ -260,18 +264,14 @@ const DriverAssignment: React.FC = () => {
               <Button
                 variant="outline"
                 size="icon"
-                disabled={!hasNextPage}
-                onClick={() =>
-                  setCurrentPage((p) =>
-                    Math.min(totalPages, p + 1)
-                  )
-                }
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
