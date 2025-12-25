@@ -352,7 +352,7 @@ const AddSubscription: React.FC = () => {
       price: Number(formData.price),
       billingCycle: formData.billingCycle,
       title: formData.title,
-      features: formData.packageIncludes, 
+      features: formData.packageIncludes,
     };
 
     createPlan.mutate(body);
@@ -377,21 +377,15 @@ const AddSubscription: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label>Plan Name</Label>
-            <Select
+            <Input
+              type="text"
+              placeholder="Premium"
               value={formData.planName}
-              onValueChange={(value) =>
-                setFormData({ ...formData, planName: value })
+              onChange={(e) =>
+                setFormData({ ...formData, planName: e.target.value })
               }
-            >
-              <SelectTrigger className="h-[45px] bg-white">
-                <SelectValue placeholder="Select plan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-              </SelectContent>
-            </Select>
+              className="h-[45px] bg-white"
+            />
           </div>
 
           <div className="space-y-2">
@@ -423,8 +417,8 @@ const AddSubscription: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="yearly">Yearly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
               </SelectContent>
             </Select>
           </div>

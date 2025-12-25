@@ -18,12 +18,13 @@ import {
   CarFront,
   User,
   HandCoins,
+  LayoutDashboard,
 } from "lucide-react";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 
 const navigation = [
-  // { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   {
     name: " Driver assignment",
     href: "/dashboard/driver-assignment",
@@ -44,7 +45,7 @@ export function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
- 
+
   console.log(session)
 
   const handleLogout = () => setIsModalOpen(true);
@@ -69,24 +70,33 @@ export function Sidebar() {
       <nav className="flex-1 space-y-3 px-3 py-4 mt-6">
         {navigation.map((item) => {
           const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
           return (
             <Link
               key={item.name}
               href={item.href}
-              onClick={() => setIsMobileOpen(false)} // Close on mobile click
+              onClick={() => setIsMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-3 h-[48px] text-base font-semibold rounded-md transition-colors",
                 isActive
-                  ? "bg-[#CD9B46] hover:bg-[#CD9B46]/90 text-[#FFFFFF]"
+                  ? "bg-[#CD9B46] text-white hover:bg-[#CD9B46]/90"
                   : "text-[#616161] hover:bg-[#CD9B46]/60 hover:text-white"
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon
+                className={cn(
+                  "h-5 w-5",
+                  isActive ? "text-white" : "text-[#616161]"
+                )}
+              />
               <span>{item.name}</span>
             </Link>
           );
         })}
+
+
       </nav>
 
       {/* Logout */}
@@ -95,7 +105,7 @@ export function Sidebar() {
         <div className="flex flex-col items-center">
           <div className="flex gap-3">
             <Image
-              src={session?.user?.profileImage || ""} 
+              src={session?.user?.profileImage || ""}
               alt="User Avatar"
               width={80}
               height={80}
