@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,205 +13,213 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UsersManagementModal } from "@/components/Modal/UsersManagementModal";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 interface Member {
-  id: number;
-  name: string;
-  date: string;
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  avatar?: string;
+  phone?: string;
+  gender?: string;
+  profileImage?: string;
+  driverRequestStatus?: string;
+  hasActiveSubscription?: boolean;
+  subscriptionExpireDate?: string | null;
 }
 
-const TOTAL_RESULTS = 1608;
 const RESULTS_PER_PAGE = 10;
 
 const UsersManagement: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data: session } = useSession();
+  const TOKEN = session?.user?.accessToken;
 
-  const members: Member[] = useMemo(
-    () =>
-      Array.from({ length: RESULTS_PER_PAGE }, (_, index) => ({
-        id: (currentPage - 1) * RESULTS_PER_PAGE + index + 1,
-        name: "John Smith",
-        date: "15/8/2025",
-        email: "example@gmail.com",
-        avatar: "/placeholder.svg",
-      })),
-    [currentPage]
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["users", currentPage],
+    enabled: !!TOKEN,
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/all-users?page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
+        {
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+          },
+        }
+      );
 
-  const totalPages = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
-
-  const handleApprove = (id: number): void => {
-    console.log("Approve member:", id);
-  };
-
-  const handleRemove = (id: number): void => {
-    console.log("Remove member:", id);
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
+      if (!res.ok) {
+        throw new Error("Failed to fetch users");
       }
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage, "...", totalPages);
-      }
-    }
-    return pages;
-  };
+
+      return res.json();
+    },
+  });
+
+  const users: Member[] = data?.data?.users || [];
+  const pagination = data?.data?.paginationInfo;
+
+  const totalPages = Number(pagination?.totalPages || 1);
+  const hasNextPage = pagination?.hasNextPage;
+  const hasPrevPage = pagination?.hasPrevPage;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Users Management
-          </h1>
-          <div className="flex items-center gap-2 mt-2 text-sm">
-            <span className="text-gray-500">Dashboard</span>
-            <span className="text-gray-500">{">"}</span>
-            <span className="text-gray-500">Users Management</span>
-          </div>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Users Management
+        </h1>
+        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+          Dashboard <span>{">"}</span> Users Management
         </div>
+      </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-lg shadow">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-white border-b-2">
-                <TableHead className="font-semibold text-gray-900">
-                  Driver Management
-                </TableHead>
-                <TableHead className="font-semibold text-gray-900">
-                  Date
-                </TableHead>
-                <TableHead className="font-semibold text-gray-900">
-                  Email
-                </TableHead>
-                <TableHead className="text-right font-semibold text-gray-900">
-                  Action
-                </TableHead>
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50 border-b text-black font-bold text-base">
+              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Driver Status</TableHead>
+              <TableHead>Subscription</TableHead>
+              <TableHead>Expire Date</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  Loading users...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id} className="border-b hover:bg-gray-50">
+            ) : users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  No users found
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user._id}>
+                  {/* User */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 py-2">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={member.avatar} alt={member.name} />
-                        <AvatarFallback className="bg-gray-200 text-gray-700">
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                        <AvatarImage src={user.profileImage || ""} />
+                        <AvatarFallback>
+                          {user.firstName?.[0]}
+                          {user.lastName?.[0]}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-gray-900">
-                        {member.name}
+                      <span className="font-medium">
+                        {user.firstName} {user.lastName}
                       </span>
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-gray-700">{member.date}</TableCell>
-                  <TableCell className="text-gray-700">{member.email}</TableCell>
+                  {/* Email */}
+                  <TableCell>{user.email}</TableCell>
 
+                  {/* Phone */}
+                  <TableCell>{user.phone || "-"}</TableCell>
+
+                  {/* Gender */}
+                  <TableCell className="capitalize">
+                    {user.gender || "-"}
+                  </TableCell>
+
+                  {/* Driver Status */}
                   <TableCell>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white px-4"
-                        onClick={() => handleApprove(member.id)}
-                      >
-                        Approve
-                      </Button>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        user.driverRequestStatus === "PENDING"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : user.driverRequestStatus === "APPROVED"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {user.driverRequestStatus || "-"}
+                    </span>
+                  </TableCell>
 
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="bg-red-500 hover:bg-red-600 text-white px-4"
-                        onClick={() => handleRemove(member.id)}
-                      >
-                        Remove
-                      </Button>
+                  {/* Subscription */}
+                  <TableCell>
+                    {user.hasActiveSubscription ? (
+                      <span className="text-green-600 font-medium">Active</span>
+                    ) : (
+                      <span className="text-red-500 font-medium">Inactive</span>
+                    )}
+                  </TableCell>
 
-                      <UsersManagementModal />
-                    </div>
+                  {/* Expire Date */}
+                  <TableCell>
+                    {user.subscriptionExpireDate
+                      ? new Date(
+                          user.subscriptionExpireDate
+                        ).toLocaleDateString()
+                      : "-"}
+                  </TableCell>
+
+                  {/* Action */}
+                  <TableCell className="text-right">
+                    <UsersManagementModal userId={user._id} />
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-6 py-4 border-t">
+          <p className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </p>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between px-6 py-4 border-t">
-            <p className="text-sm text-gray-600">
-              Showing 1 to 6 of 12 results
-            </p>
+          <div className="flex items-center gap-2">
+            {/* Prev */}
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={!hasPrevPage}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-            <div className="flex items-center gap-1">
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 border-gray-300"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              {getPageNumbers().map((page, index) => (
-                <React.Fragment key={index}>
-                  {page === "..." ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-300 h-9 min-w-9"
-                      disabled
-                    >
-                      ...
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className={
-                        currentPage === page
-                          ? "bg-blue-500 hover:bg-blue-600 text-white h-9 min-w-9"
-                          : "border-gray-300 h-9 min-w-9"
-                      }
-                      onClick={() => setCurrentPage(page as number)}
-                    >
-                      {page}
-                    </Button>
-                  )}
-                </React.Fragment>
-              ))}
-
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 border-gray-300"
-                disabled={currentPage === totalPages}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                key={page}
+                size="sm"
+                variant={currentPage === page ? "default" : "outline"}
+                className={
+                  currentPage === page
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : ""
                 }
+                onClick={() => setCurrentPage(page)}
               >
-                <ChevronRight className="h-4 w-4" />
+                {page}
               </Button>
-            </div>
+            ))}
+
+            {/* Next */}
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={!hasNextPage}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
