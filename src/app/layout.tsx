@@ -4,6 +4,7 @@ import "./globals.css";
 import QueryProvider from "@/providers/query-provider";
 import AuthProvider from "@/providers/AuthProvider";
 import { Toaster } from "sonner";
+import TopLoader from "nextjs-toploader";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,6 +35,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <Toaster />
+               <TopLoader color="#147575" shadow="0 0 10px #147575, 0 0 5px #147575" showSpinner={false} height={4} easing="ease-in" />
             {children}
           </AuthProvider>
         </QueryProvider>
