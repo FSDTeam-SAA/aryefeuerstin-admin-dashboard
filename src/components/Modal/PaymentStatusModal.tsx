@@ -43,43 +43,43 @@ interface RevenueDetailResponse {
         endDate: string;
       };
     };
-    returnOrder: {
+    returnOrder?: {
       _id: string;
-      customer: {
-        firstName: string;
-        lastName: string;
-        phone: string;
-        email: string;
-        address: {
-          zipCode: string;
-          street: string;
-          city: string;
+      customer?: {
+        firstName?: string;
+        lastName?: string;
+        phone?: string;
+        email?: string;
+        address?: {
+          zipCode?: string;
+          street?: string;
+          city?: string;
         };
-        pickupLocation: {
-          address: string;
-          lat: number;
-          lng: number;
+        pickupLocation?: {
+          address?: string;
+          lat?: number;
+          lng?: number;
         };
       };
-      stores: {
-        store: string;
-        numberOfPackages: number;
-        packages: {
-          packageNumber: string;
-          barcodeImages: string[];
+      stores?: {
+        store?: string;
+        numberOfPackages?: number;
+        packages?: {
+          packageNumber?: string;
+          barcodeImages?: string[];
         }[];
       }[];
-      options: {
-        physicalReturnLabel: { enabled: boolean; fee: number };
-        physicalReceipt: {
+      options?: {
+        physicalReturnLabel?: { enabled: boolean; fee: number };
+        physicalReceipt?: {
           enabled: boolean;
           creditCardLast4: string;
           fee: number;
         };
-        returnShippingLabel: {
+        returnShippingLabel?: {
           enabled: boolean;
-          pickupAndReturnAddress: string;
-          dimensions: {
+          pickupAndReturnAddress?: string;
+          dimensions?: {
             length: number;
             width: number;
             height: number;
@@ -87,11 +87,11 @@ interface RevenueDetailResponse {
           };
           fee: number;
         };
-        message: { enabled: boolean; note: string };
+        message?: { enabled: boolean; note: string };
       };
-      pricing: { baseAmount: number; extraFees: number; totalAmount: number };
-      status: string;
-      paymentStatus: string;
+      pricing?: { baseAmount?: number; extraFees?: number; totalAmount?: number };
+      status?: string;
+      paymentStatus?: string;
     };
   };
 }
@@ -126,7 +126,6 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-        {/* max-w-3xl makes modal wider, max-h-[90vh] fixes height and allows scrolling */}
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900">
             Revenue Details
@@ -144,136 +143,136 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
           <div className="space-y-4">
             {/* User Info */}
             <div className="border rounded-lg p-4 bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-2">
-                User Information
-              </h3>
+              <h3 className="font-medium text-gray-800 mb-2">User Information</h3>
               <p>
                 <span className="font-semibold">Name:</span>{" "}
-                {data?.data.user.firstName} {data?.data.user.lastName}
+                {data?.data.user.firstName ?? "N/A"}{" "}
+                {data?.data.user.lastName ?? ""}
               </p>
               <p>
                 <span className="font-semibold">Email:</span>{" "}
-                {data?.data.user.email}
+                {data?.data.user.email ?? "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Phone:</span>{" "}
-                {data?.data.user.phone || "N/A"}
+                {data?.data.user.phone ?? "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Subscription:</span> Plan{" "}
-                {data?.data.user.subscription.planId},{" "}
-                {new Date(
-                  data?.data.user.subscription.startDate || ""
-                ).toLocaleDateString()}{" "}
+                {data?.data.user.subscription.planId ?? "N/A"},{" "}
+                {data?.data.user.subscription.startDate
+                  ? new Date(data.data.user.subscription.startDate).toLocaleDateString()
+                  : "N/A"}{" "}
                 -{" "}
-                {new Date(
-                  data?.data.user.subscription.endDate || ""
-                ).toLocaleDateString()}
+                {data?.data.user.subscription.endDate
+                  ? new Date(data.data.user.subscription.endDate).toLocaleDateString()
+                  : "N/A"}
               </p>
             </div>
 
             {/* Revenue Info */}
             <div className="border rounded-lg p-4 bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-2">
-                Payment Information
-              </h3>
+              <h3 className="font-medium text-gray-800 mb-2">Payment Information</h3>
               <p>
                 <span className="font-semibold">Amount:</span> $
-                {data?.data.amount} {data?.data.currency.toUpperCase()}
+                {data?.data.amount ?? "0"} {data?.data.currency?.toUpperCase() ?? ""}
               </p>
               <p>
                 <span className="font-semibold">Status:</span>{" "}
                 <span
                   className={`px-2 py-1 rounded text-white ${
-                    data?.data.status === "PAID"
-                      ? "bg-green-500"
-                      : "bg-orange-500"
+                    data?.data.status === "PAID" ? "bg-green-500" : "bg-orange-500"
                   }`}
                 >
-                  {data?.data.status}
+                  {data?.data.status ?? "N/A"}
                 </span>
               </p>
               <p>
                 <span className="font-semibold">Booking Type:</span>{" "}
-                {data?.data.bookingType}
+                {data?.data.bookingType ?? "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Created At:</span>{" "}
-                {new Date(data?.data.createdAt || "").toLocaleString()}
+                {data?.data.createdAt
+                  ? new Date(data.data.createdAt).toLocaleString()
+                  : "N/A"}
               </p>
             </div>
 
             {/* Return Order Info */}
-            <div className="border rounded-lg p-4 bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-2">Return Order</h3>
-              <p>
-                <span className="font-semibold">Customer:</span>{" "}
-                {data?.data.returnOrder.customer.firstName}{" "}
-                {data?.data.returnOrder.customer.lastName}
-              </p>
-              <p>
-                <span className="font-semibold">Phone:</span>{" "}
-                {data?.data.returnOrder.customer.phone}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span>{" "}
-                {data?.data.returnOrder.customer.email}
-              </p>
-              <p>
-                <span className="font-semibold">Pickup Address:</span>{" "}
-                {data?.data.returnOrder.customer.pickupLocation.address}
-              </p>
-              {data?.data.returnOrder.stores.map((store, index) => (
-                <div key={index} className="mt-2 border-t pt-2">
-                  <p>
-                    <span className="font-semibold">Store:</span> {store.store}{" "}
-                    ({store.numberOfPackages} packages)
-                  </p>
-                  {store.packages.map((pkg, idx) => (
-                    <div key={idx} className="mt-1">
-                      <p className="font-medium">{pkg.packageNumber}</p>
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        {pkg.barcodeImages.map((img, i) => (
-                          <Image
-                            width={300}
-                            height={300}
-                            key={i}
-                            src={img}
-                            alt="barcode"
-                            className="h-16 w-28 object-contain border rounded"
-                          />
-                        ))}
+            {data?.data.returnOrder && (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <h3 className="font-medium text-gray-800 mb-2">Return Order</h3>
+                <p>
+                  <span className="font-semibold">Customer:</span>{" "}
+                  {data.data.returnOrder.customer?.firstName ?? "N/A"}{" "}
+                  {data.data.returnOrder.customer?.lastName ?? ""}
+                </p>
+                <p>
+                  <span className="font-semibold">Phone:</span>{" "}
+                  {data.data.returnOrder.customer?.phone ?? "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Email:</span>{" "}
+                  {data.data.returnOrder.customer?.email ?? "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Pickup Address:</span>{" "}
+                  {data.data.returnOrder.customer?.pickupLocation?.address ?? "N/A"}
+                </p>
+
+                {data.data.returnOrder.stores?.map((store, index) => (
+                  <div key={index} className="mt-2 border-t pt-2">
+                    <p>
+                      <span className="font-semibold">Store:</span>{" "}
+                      {store.store ?? "N/A"} ({store.numberOfPackages ?? 0} packages)
+                    </p>
+                    {store.packages?.map((pkg, idx) => (
+                      <div key={idx} className="mt-1">
+                        <p className="font-medium">{pkg.packageNumber ?? "N/A"}</p>
+                        <div className="flex gap-2 mt-1 flex-wrap">
+                          {pkg.barcodeImages?.map((img, i) => (
+                            <Image
+                              width={300}
+                              height={300}
+                              key={i}
+                              src={img}
+                              alt="barcode"
+                              className="h-16 w-28 object-contain border rounded"
+                            />
+                          )) ?? null}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Pricing Info */}
-            <div className="border rounded-lg p-4 bg-gray-50">
-              <h3 className="font-medium text-gray-800 mb-2">
-                Pricing & Options
-              </h3>
-              <p>
-                <span className="font-semibold">Base Amount:</span> $
-                {data?.data.returnOrder.pricing.baseAmount}
-              </p>
-              <p>
-                <span className="font-semibold">Extra Fees:</span> $
-                {data?.data.returnOrder.pricing.extraFees}
-              </p>
-              <p>
-                <span className="font-semibold">Total Amount:</span> $
-                {data?.data.returnOrder.pricing.totalAmount}
-              </p>
-              {data?.data.returnOrder.options.message.enabled && (
+            {data?.data.returnOrder?.pricing && (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <h3 className="font-medium text-gray-800 mb-2">Pricing & Options</h3>
                 <p>
-                  <span className="font-semibold">Message Note:</span>{" "}
-                  {data?.data.returnOrder.options.message.note}
+                  <span className="font-semibold">Base Amount:</span> $
+                  {data.data.returnOrder.pricing.baseAmount ?? 0}
                 </p>
-              )}
-            </div>
+                <p>
+                  <span className="font-semibold">Extra Fees:</span> $
+                  {data.data.returnOrder.pricing.extraFees ?? 0}
+                </p>
+                <p>
+                  <span className="font-semibold">Total Amount:</span> $
+                  {data.data.returnOrder.pricing.totalAmount ?? 0}
+                </p>
+                {data.data.returnOrder.options?.message?.enabled && (
+                  <p>
+                    <span className="font-semibold">Message Note:</span>{" "}
+                    {data.data.returnOrder.options.message.note ?? ""}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
