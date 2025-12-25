@@ -92,8 +92,8 @@ export default function ForgetPassword() {
 
                 <div className="relative z-10  p-8 sm:p-10 w-full max-w-[500px]">
                     <div className="mb-10">
-                        <h3 className="text-[#131313] text-center text-[40px] ">Forgot Password</h3>
-                        <p className="text-[#424242] font-normal text-[16px] text-center">Enter your email to recover your password</p>
+                        <h3 className="text-[#131313]  text-[40px] ">Forgot Password</h3>
+                        <p className="text-[#424242] font-normal text-[16px] ">Enter your email to recover your password</p>
                     </div>
                     <Form {...form}>
                         <form

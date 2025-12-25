@@ -28,7 +28,7 @@ const Setting: React.FC = () => {
         <div className="space-y-4">
           {/* Personal Information */}
           <div
-            onClick={() => handleNavigate("/setting/personalinfo")}
+            onClick={() => handleNavigate("/dashboard/setting/personalinfo")}
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
           >
             <span className="text-gray-900 font-medium">Personal Information</span>
@@ -37,7 +37,7 @@ const Setting: React.FC = () => {
 
           {/* Change Password */}
           <div
-            onClick={() => handleNavigate("/setting/update-password")}
+            onClick={() => handleNavigate("/dashboard/setting/update-password")}
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
           >
             <span className="text-gray-900 font-medium">Change Password</span>
