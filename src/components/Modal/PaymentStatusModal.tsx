@@ -179,7 +179,7 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
               </h3>
               <p>
                 <span className="font-semibold">Amount:</span> $
-                {data?.data.amount} {data?.data.currency.toUpperCase()}
+                {data?.data?.amount} {data?.data?.currency?.toUpperCase()}
               </p>
               <p>
                 <span className="font-semibold">Status:</span>{" "}
@@ -203,37 +203,37 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
               </p>
             </div>
 
-            {/* Return Order Info */}
+            {/* Return Order Info */}          
             <div className="border rounded-lg p-4 bg-gray-50">
               <h3 className="font-medium text-gray-800 mb-2">Return Order</h3>
               <p>
                 <span className="font-semibold">Customer:</span>{" "}
-                {data?.data.returnOrder.customer.firstName}{" "}
-                {data?.data.returnOrder.customer.lastName}
+                {data?.data?.returnOrder?.customer?.firstName}{" "}    
+                {data?.data?.returnOrder?.customer?.lastName}           
               </p>
               <p>
                 <span className="font-semibold">Phone:</span>{" "}
-                {data?.data.returnOrder.customer.phone}
+                {data?.data?.returnOrder?.customer?.phone}
               </p>
               <p>
                 <span className="font-semibold">Email:</span>{" "}
-                {data?.data.returnOrder.customer.email}
+                {data?.data?.returnOrder?.customer?.email}
               </p>
               <p>
                 <span className="font-semibold">Pickup Address:</span>{" "}
-                {data?.data.returnOrder.customer.pickupLocation.address}
+                {data?.data?.returnOrder?.customer?.pickupLocation?.address}
               </p>
-              {data?.data.returnOrder.stores.map((store, index) => (
+              {data?.data?.returnOrder?.stores?.map((store, index) => (
                 <div key={index} className="mt-2 border-t pt-2">
                   <p>
-                    <span className="font-semibold">Store:</span> {store.store}{" "}
-                    ({store.numberOfPackages} packages)
+                    <span className="font-semibold">Store:</span> {store?.store}{" "}
+                    ({store?.numberOfPackages} packages)
                   </p>
-                  {store.packages.map((pkg, idx) => (
+                  {store?.packages?.map((pkg, idx) => (
                     <div key={idx} className="mt-1">
-                      <p className="font-medium">{pkg.packageNumber}</p>
+                      <p className="font-medium">{pkg?.packageNumber}</p>
                       <div className="flex gap-2 mt-1 flex-wrap">
-                        {pkg.barcodeImages.map((img, i) => (
+                        {pkg?.barcodeImages?.map((img, i) => (
                           <Image
                             width={300}
                             height={300}
@@ -257,20 +257,20 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
               </h3>
               <p>
                 <span className="font-semibold">Base Amount:</span> $
-                {data?.data.returnOrder.pricing.baseAmount}
+                {data?.data.returnOrder?.pricing?.baseAmount}
               </p>
               <p>
                 <span className="font-semibold">Extra Fees:</span> $
-                {data?.data.returnOrder.pricing.extraFees}
+                {data?.data?.returnOrder?.pricing?.extraFees}
               </p>
               <p>
                 <span className="font-semibold">Total Amount:</span> $
-                {data?.data.returnOrder.pricing.totalAmount}
+                {data?.data?.returnOrder?.pricing?.totalAmount}
               </p>
-              {data?.data.returnOrder.options.message.enabled && (
+              {data?.data?.returnOrder?.options?.message?.enabled && (
                 <p>
                   <span className="font-semibold">Message Note:</span>{" "}
-                  {data?.data.returnOrder.options.message.note}
+                  {data?.data?.returnOrder?.options?.message?.note}
                 </p>
               )}
             </div>
