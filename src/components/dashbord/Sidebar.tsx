@@ -46,8 +46,6 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  console.log(session)
-
   const handleLogout = () => setIsModalOpen(true);
 
 

@@ -97,6 +97,7 @@ interface RevenueDetailResponse {
 }
 
 export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
+
   const { data: session } = useSession();
   const TOKEN = session?.user?.accessToken;
   const { data, isLoading } = useQuery<RevenueDetailResponse>({
@@ -153,7 +154,7 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
               </p>
               <p>
                 <span className="font-semibold">Email:</span>{" "}
-                {data?.data.user.email}
+                {data?.data?.user.email}
               </p>
               <p>
                 <span className="font-semibold">Phone:</span>{" "}
@@ -190,7 +191,7 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
                       : "bg-orange-500"
                   }`}
                 >
-                  {data?.data.status}
+                  {data?.data?.status}
                 </span>
               </p>
               <p>
@@ -199,7 +200,7 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
               </p>
               <p>
                 <span className="font-semibold">Created At:</span>{" "}
-                {new Date(data?.data.createdAt || "").toLocaleString()}
+                {new Date(data?.data?.createdAt || "").toLocaleString()}
               </p>
             </div>
 
