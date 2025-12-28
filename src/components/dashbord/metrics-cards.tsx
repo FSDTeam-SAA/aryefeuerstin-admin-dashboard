@@ -57,12 +57,11 @@ export function MetricsCards() {
     },
   })
 
-  /* ================= DEBUG (IMPORTANT) ================= */
+
   console.log("Totals API:", totalsData)
   console.log("Orders API:", ordersData)
   console.log("Revenue API:", revenueData)
 
-  /* ================= SAFE DATA EXTRACTION ================= */
 
   const totalUsers =
     totalsData?.data?.totalUsers ??
@@ -88,7 +87,7 @@ export function MetricsCards() {
     revenueData?.totalRevenue ??
     0
 
-  /* ================= METRICS CONFIG ================= */
+
 
   const metrics = [
     {
@@ -117,7 +116,7 @@ export function MetricsCards() {
     },
   ]
 
-  /* ================= UI ================= */
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

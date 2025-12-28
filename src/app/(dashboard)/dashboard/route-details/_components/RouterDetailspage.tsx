@@ -45,7 +45,7 @@ function RouteDetailsPage() {
     if (driverId && TOKEN) {
       routeMutation.mutate();
     }
-  }, [driverId, TOKEN]);
+  }, [driverId, TOKEN, routeMutation]);
 
   if (status === "loading" || routeMutation.isPending) {
     return <div className="p-6">Generating route...</div>;

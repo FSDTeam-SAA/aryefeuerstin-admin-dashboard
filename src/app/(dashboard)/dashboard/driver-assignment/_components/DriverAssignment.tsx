@@ -57,7 +57,7 @@ const DriverAssignment: React.FC = () => {
     enabled: !!TOKEN,
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/all-sellers?page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/all-drivers?page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
         {
           headers: {
             Authorization: `Bearer ${TOKEN}`,

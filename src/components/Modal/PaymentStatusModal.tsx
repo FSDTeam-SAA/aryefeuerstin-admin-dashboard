@@ -97,6 +97,7 @@ interface RevenueDetailResponse {
 }
 
 export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
+
   const { data: session } = useSession();
   const TOKEN = session?.user?.accessToken;
   const { data, isLoading } = useQuery<RevenueDetailResponse>({

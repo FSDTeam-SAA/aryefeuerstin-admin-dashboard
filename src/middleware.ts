@@ -7,7 +7,9 @@ export async function middleware(request: NextRequest) {
         secret: process.env.NEXTAUTH_SECRET,
     });
 
-    if (!token || token?.role !== "ADMIN") {
+    const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+
+    if (!token || !allowedRoles.includes(token.role)) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 

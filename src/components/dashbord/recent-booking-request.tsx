@@ -104,13 +104,12 @@ export function RecentBookingRequest() {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          booking.status === "PENDING"
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${booking.status === "PENDING"
                             ? "bg-yellow-100 text-yellow-800"
                             : booking.status === "COMPLETED"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
                       >
                         {booking.status}
                       </span>
