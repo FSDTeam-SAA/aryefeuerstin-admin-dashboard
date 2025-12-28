@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, Eye } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,79 +16,144 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { OrderRequestDetailsModal } from "@/components/Modal/OrderRequestDetailsModal";
+import { ShowDriversModal } from "@/components/Modal/ShowDriversModal";
+import { ShowRouteModal } from "@/components/Modal/ShowRouteModal";
 
 interface Order {
-  id: number;
-  name: string;
-  email: string;
-  zipCode: string;
-  street: string;
-  city: string;
-  avatar?: string;
-  checked: boolean;
+  _id: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    address: {
+      zipCode: string;
+      street: string;
+      city: string;
+    };
+  };
+  user?: {
+    profileImage?: string;
+  };
 }
 
-const TOTAL_RESULTS = 1608;
+interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: {
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    orders: Order[];
+  };
+}
+
 const RESULTS_PER_PAGE = 10;
 
-const OrderRequests: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+const OrderRequests = () => {
+  const { data: session } = useSession();
+  const TOKEN = session?.user?.accessToken;
+  const queryClient = useQueryClient();
 
-  const [orders, setOrders] = useState<Order[]>(
-    useMemo(
-      () =>
-        Array.from({ length: RESULTS_PER_PAGE }, (_, index) => ({
-          id: (currentPage - 1) * RESULTS_PER_PAGE + index + 1,
-          name: "John Smith",
-          email: "example@gmail.com",
-          zipCode: "12345",
-          street: "street no 16",
-          city: "Dhaka",
-          avatar: "/placeholder.svg",
-          checked: false,
-        })),
-      [currentPage]
-    )
-  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [assignmentResponse, setAssignmentResponse] = useState<any>(null);
 
-  const totalPages = Math.ceil(TOTAL_RESULTS / RESULTS_PER_PAGE);
+  // Fetch orders
+  const { data, isLoading } = useQuery<ApiResponse>({
+    queryKey: ["order-requests", currentPage, searchQuery],
+    enabled: Boolean(TOKEN),
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(RESULTS_PER_PAGE),
+      });
+      if (searchQuery) params.append("search", searchQuery);
 
-  const handleCheckboxChange = (id: number) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === id ? { ...order, checked: !order.checked } : order
-      )
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/admin/orders-request?${params.toString()}`,
+        {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch order requests");
+      return res.json();
+    },
+  });
+
+  const orders = data?.data.orders ?? [];
+  const totalPages = data?.data.meta.totalPages ?? 1;
+  const totalResults = data?.data.meta.total ?? 0;
+
+  // Handle checkbox select
+  const toggleOrderSelection = (orderId: string) => {
+    setSelectedOrders((prev) =>
+      prev.includes(orderId)
+        ? prev.filter((id) => id !== orderId)
+        : [...prev, orderId]
     );
   };
 
-  const handleView = (id: number): void => {
-    console.log("View order:", id);
+  const isAllSelected = orders.every((o) => selectedOrders.includes(o._id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(orders.map((o) => o._id));
+    }
   };
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
+  // Mutation to assign driver
+  const assignDriverMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedDriverId || selectedOrders.length === 0) return;
 
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage, "...", totalPages);
-      }
-    }
-    return pages;
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/assign-driver`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`,
+          },
+          body: JSON.stringify({
+            driverId: selectedDriverId,
+            orderIds: selectedOrders,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to assign driver");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({queryKey : ["order-requests"]});
+      setSelectedOrders([]);
+      setSelectedDriverId(null);
+      setAssignmentResponse(data.data); // Save response data
+      setIsAssignModalOpen(false); // Driver modal close
+      setIsSuccessModalOpen(true); // Success modal open
+    },
+  });
+
+  const handleSuccessClose = () => {
+    setIsSuccessModalOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="">
+      <div>
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -102,36 +169,26 @@ const OrderRequests: React.FC = () => {
             </div>
           </div>
 
-          {/* Search Bar and Buttons */}
+          {/* Search & Button */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-1 max-w-md">
-              <div className="relative flex-1">
-                <Input
-                  type="text"
-                  placeholder="Search by User Name"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-4 pl-4 py-2 w-full border-gray-300"
-                />
-              </div>
-              <Button
-                size="icon"
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
+              <Input
+                placeholder="Search by User Name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button size="icon" className="bg-blue-500 text-white">
                 <Search className="h-4 w-4" />
               </Button>
             </div>
 
             <div className="flex items-center gap-3">
-              <Button className="bg-cyan-400 hover:bg-cyan-500 text-white px-6">
-                Create Route and Assign Driver
-              </Button>
               <Button
-                variant="outline"
-                size="icon"
-                className="border-gray-300"
+                className="bg-cyan-400 text-white px-6"
+                disabled={selectedOrders.length === 0}
+                onClick={() => setIsAssignModalOpen(true)}
               >
-                <SlidersHorizontal className="h-4 w-4" />
+                Create Route and Assign Driver
               </Button>
             </div>
           </div>
@@ -142,114 +199,117 @@ const OrderRequests: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="w-12"></TableHead>
-                <TableHead className="font-medium text-gray-700">Customer Name</TableHead>
-                <TableHead className="font-medium text-gray-700">Email</TableHead>
-                <TableHead className="font-medium text-gray-700">Zip Code</TableHead>
-                <TableHead className="font-medium text-gray-700">Street</TableHead>
-                <TableHead className="font-medium text-gray-700">City</TableHead>
-                <TableHead className="text-right font-medium text-gray-700">Action</TableHead>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
+                <TableHead>Customer Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Zip Code</TableHead>
+                <TableHead>Street</TableHead>
+                <TableHead>City</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <Checkbox
-                      checked={order.checked}
-                      onCheckedChange={() => handleCheckboxChange(order.id)}
-                    />
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={order.avatar} alt={order.name} />
-                        <AvatarFallback className="bg-gray-200 text-gray-700">
-                          {order.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{order.name}</span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>{order.email}</TableCell>
-                  <TableCell>{order.zipCode}</TableCell>
-                  <TableCell>{order.street}</TableCell>
-                  <TableCell>{order.city}</TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-end">
-                      <Button
-                        size="icon"
-                        className="h-8 w-8 rounded-md bg-orange-400 hover:bg-orange-500 text-white"
-                        onClick={() => handleView(order.id)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6">
+                    Loading orders...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : orders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-6">
+                    No orders found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                orders.map((order) => (
+                  <TableRow key={order._id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedOrders.includes(order._id)}
+                        onCheckedChange={() => toggleOrderSelection(order._id)}
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-3 py-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={order.user?.profileImage ?? ""} />
+                          <AvatarFallback>
+                            {order.customer.firstName[0]}
+                            {order.customer.lastName[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">
+                          {order.customer.firstName} {order.customer.lastName}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>{order.customer.email}</TableCell>
+                    <TableCell>{order.customer.address.zipCode}</TableCell>
+                    <TableCell>{order.customer.address.street}</TableCell>
+                    <TableCell>{order.customer.address.city}</TableCell>
+
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <OrderRequestDetailsModal orderRequestId={order._id} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
 
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t">
             <p className="text-sm text-gray-600">
-              Showing 1 to 5 of 12 results
+              Showing {(currentPage - 1) * RESULTS_PER_PAGE + 1} to{" "}
+              {Math.min(currentPage * RESULTS_PER_PAGE, totalResults)} of{" "}
+              {totalResults} results
             </p>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 border-gray-300"
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              {getPageNumbers().map((page, index) => (
-                <React.Fragment key={index}>
-                  {page === "..." ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-300 h-9 min-w-9"
-                      disabled
-                    >
-                      ...
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className={
-                        currentPage === page
-                          ? "bg-orange-400 hover:bg-orange-500 text-white h-9 min-w-9"
-                          : "border-gray-300 h-9 min-w-9"
-                      }
-                      onClick={() => setCurrentPage(page as number)}
-                    >
-                      {page}
-                    </Button>
-                  )}
-                </React.Fragment>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <Button
+                    key={page}
+                    size="sm"
+                    variant={currentPage === page ? "default" : "outline"}
+                    className={
+                      currentPage === page
+                        ? "bg-orange-400 text-white h-9 min-w-9"
+                        : "border-gray-300 h-9 min-w-9"
+                    }
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                )
+              )}
 
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 border-gray-300"
                 disabled={currentPage === totalPages}
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
               >
                 <ChevronRight className="h-4 w-4" />
@@ -257,6 +317,25 @@ const OrderRequests: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Assign Driver Modal */}
+        {isAssignModalOpen && (
+          <ShowDriversModal
+            onSelectDriver={(driver) => setSelectedDriverId(driver._id)}
+            onClose={() => setIsAssignModalOpen(false)}
+            onAssign={() => assignDriverMutation.mutate()}
+            selectedDriverId={selectedDriverId}
+          />
+        )}
+
+        {/* Success Modal */}
+        {isSuccessModalOpen && (
+          <ShowRouteModal
+            isOpen={isSuccessModalOpen}
+            onClose={handleSuccessClose}
+            responseData={assignmentResponse}
+          />
+        )}
       </div>
     </div>
   );
