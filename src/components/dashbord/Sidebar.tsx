@@ -35,6 +35,7 @@ const navigation = [
   { name: "Pickup history", href: "/dashboard/pickup-history", icon: CarFront },
 
   { name: "Users Management", href: "/dashboard/users-management", icon: User },
+  { name: "Workers Management", href: "/dashboard/workers-management", icon: User },
   { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins },
   { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings },
   { name: "Setting", href: "/dashboard/setting", icon: Settings },
