@@ -300,16 +300,16 @@
 "use client"
 
 import { useState, Suspense } from "react"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+// import { Input } from "@/components/ui/input"
+// import {
+//     Select,
+//     SelectContent,
+//     SelectItem,
+//     SelectTrigger,
+//     SelectValue,
+// } from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -414,7 +414,7 @@ function WorkersManagementContent() {
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                {/* <div className="flex flex-col sm:flex-row gap-4 mb-6">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
@@ -433,7 +433,7 @@ function WorkersManagementContent() {
                             <SelectItem value="suspend">Suspend</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
+                </div> */}
 
                 {/* Table */}
                 <div className="rounded-2xl border border-gray-100 overflow-hidden">
