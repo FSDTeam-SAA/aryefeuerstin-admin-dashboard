@@ -327,7 +327,7 @@ export function Sidebar() {
   });
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-white pt-16 lg:pt-3">
+    <div className="flex h-full flex-col w-full bg-white pt-16 lg:pt-3">
       {/* Logo */}
       <div className="hidden lg:flex h-16 items-center justify-center px-6 pt-10">
         <Image src="/logo.png" alt="logo" width={150} height={150} className="object-contain" />

@@ -97,13 +97,14 @@ const Redirect = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-    const user = session?.user as SessionUser | undefined;
-  
-    const permissions: string[] = user?.permissions ?? [];
-    const role = user?.role;
+  const user = session?.user as SessionUser | undefined;
+
+
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    const permissions: string[] = user?.permissions ?? [];
+    const role = user?.role;
 
 
     // 1️⃣ SUPER ADMIN → Dashboard
@@ -124,7 +125,7 @@ const Redirect = () => {
 
     // fallback
     router.replace("/dashboard");
-  }, [session, status, router, permissions, role]);
+  }, [session, status, router, user]);
 
   return (
     <div className="flex h-screen w-full items-center justify-center">
