@@ -3,17 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { 
   Package, 
   MapPin, 
   Calendar, 
   DollarSign,
-  Eye,
   Loader2,
   AlertCircle 
 } from "lucide-react";
@@ -155,12 +152,12 @@ export function RecentBookingRequest() {
             Showing latest 6 of {totalOrders} total orders
           </CardDescription>
         </div>
-        <Link href="/dashboard/return-orders">
+        {/* <Link href="/dashboard/return-orders">
           <Button variant="outline" size="sm" className="gap-2">
             <Eye className="h-4 w-4" />
             View All
           </Button>
-        </Link>
+        </Link> */}
       </CardHeader>
 
       <CardContent className="p-0">
@@ -173,8 +170,8 @@ export function RecentBookingRequest() {
                 <TableHead className="font-semibold text-[#333733]">Stores</TableHead>
                 <TableHead className="font-semibold text-[#333733]">Status</TableHead>
                 <TableHead className="font-semibold text-[#333733]">Date</TableHead>
-                <TableHead className="font-semibold text-[#333733] text-right">Amount</TableHead>
-                <TableHead className="font-semibold text-[#333733] text-center">Action</TableHead>
+                <TableHead className="font-semibold text-[#333733] text-right pr-5">Amount</TableHead>
+                {/* <TableHead className="font-semibold text-[#333733] text-center">Action</TableHead> */}
               </TableRow>
             </TableHeader>
 
@@ -273,8 +270,8 @@ export function RecentBookingRequest() {
                       </TableCell>
 
                       {/* Amount */}
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <TableCell className="text-right ">
+                        <div className="flex items-center justify-end gap-1 mr-4">
                           <DollarSign className="h-4 w-4 text-green-600" />
                           <span className="font-semibold text-[#333733]">
                             {order.pricing.totalAmount.toFixed(2)}
@@ -283,14 +280,14 @@ export function RecentBookingRequest() {
                       </TableCell>
 
                       {/* Action */}
-                      <TableCell className="text-center">
+                      {/* <TableCell className="text-center">
                         <Link href={`/dashboard/return-orders/${order._id}`}>
                           <Button variant="ghost" size="sm" className="gap-2">
                             <Eye className="h-4 w-4" />
                             View
                           </Button>
                         </Link>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))
               )}
@@ -299,7 +296,7 @@ export function RecentBookingRequest() {
         </div>
 
         {/* Pagination Info */}
-        {data?.data?.pagination && orders.length > 0 && (
+        {/* {data?.data?.pagination && orders.length > 0 && (
           <div className="border-t p-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Showing latest 6 orders
@@ -310,7 +307,7 @@ export function RecentBookingRequest() {
               </Button>
             </Link>
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

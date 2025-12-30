@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
-import { TrendingUp, TrendingDown } from "lucide-react"
 import { useSession } from "next-auth/react";
 
 export function MetricsCards() {
@@ -93,25 +92,21 @@ export function MetricsCards() {
     {
       title: "Total Applications",
       value: totalDrivers,
-      change: "+36%",
       isPositive: true,
     },
     {
       title: "Total Booking",
       value: totalOrders,
-      change: "-14%",
       isPositive: false,
     },
     {
       title: "Total Earnings",
       value: `$${Number(totalRevenue).toLocaleString()}`,
-      change: "+36%",
       isPositive: true,
     },
     {
       title: "Total Users",
       value: totalUsers,
-      change: "+30%",
       isPositive: true,
     },
   ]
@@ -132,19 +127,6 @@ export function MetricsCards() {
             <div className="flex items-end justify-between">
               <div className="text-[36px] font-semibold text-[#131313]">
                 {metric.value}
-              </div>
-
-              <div
-                className={`flex items-center gap-1 text-sm font-medium ${
-                  metric.isPositive ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {metric.isPositive ? (
-                  <TrendingUp className="w-4 h-4" />
-                ) : (
-                  <TrendingDown className="w-4 h-4" />
-                )}
-                {metric.change}
               </div>
             </div>
           </CardContent>
