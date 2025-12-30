@@ -283,7 +283,7 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: "Overview" },
-  { name: "Driver Assignment", href: "/dashboard/driver-assignment", icon: Scooter, permission: "Drivers Management" },
+  { name: "Driver Management", href: "/dashboard/driver-assignment", icon: Scooter, permission: "Drivers Management" },
   { name: "Membership Status", href: "/dashboard/membership-status", icon: Users, permission: "Membership Status" },
   { name: "Payment Status", href: "/dashboard/payment-status", icon: DollarSign, permission: "Payments Status" },
   { name: "Pickup History", href: "/dashboard/pickup-history", icon: CarFront, permission: "Pickup History" },

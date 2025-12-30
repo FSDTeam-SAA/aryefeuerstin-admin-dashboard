@@ -403,7 +403,7 @@ const PickupHistory: React.FC = () => {
                 <TableRow key={item._id} className="hover:bg-gray-50">
                   {/* Name */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 py-2">
                       <Avatar>
                         <AvatarFallback>
                           {getName(item)[0] ?? "U"}
