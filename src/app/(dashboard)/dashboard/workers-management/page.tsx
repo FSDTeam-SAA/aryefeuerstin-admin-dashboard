@@ -1,17 +1,8 @@
-
 "use client"
 
 import { useState, Suspense } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-// import { Input } from "@/components/ui/input"
-// import {
-//     Select,
-//     SelectContent,
-//     SelectItem,
-//     SelectTrigger,
-//     SelectValue,
-// } from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -58,20 +49,19 @@ type AdminListResponse = {
 }
 
 function WorkersManagementContent() {
+    const [currentPage, setCurrentPage] = useState(1)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null)
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     
-    
-
     const { data: session } = useSession()
     const token = (session?.user as { accessToken?: string })?.accessToken
 
     const { data, isLoading } = useQuery<AdminListResponse>({
-        queryKey: ["worker"],
+        queryKey: ["worker", currentPage],
         queryFn: async () => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/team`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/team?page=${currentPage}&limit=10`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -93,6 +83,8 @@ function WorkersManagementContent() {
         setIsViewModalOpen(true)
     }
 
+    const pagination = data?.data?.pagination
+
     return (
         <div className="mx-auto space-y-6">
             {/* Header */}
@@ -105,7 +97,7 @@ function WorkersManagementContent() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 shadow-[0px_4px_10px_0px_#0000001A] border border-gray-100">
+            <div className="bg-white rounded-3xl p-6">
                 {/* Title + Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <h2 className="text-xl font-bold text-gray-900">Workers Team</h2>
@@ -116,28 +108,6 @@ function WorkersManagementContent() {
                         Add Worker
                     </Button>
                 </div>
-
-                {/* Filters */}
-                {/* <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            placeholder="Search ......"
-                            className="pl-10 h-10 border-gray-200 rounded-xl bg-gray-50/50"
-                        />
-                    </div>
-
-                    <Select defaultValue="all">
-                        <SelectTrigger className="w-full sm:w-[180px] h-10 border-gray-200 rounded-xl bg-gray-50/50">
-                            <SelectValue placeholder="All" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="suspend">Suspend</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div> */}
 
                 {/* Table */}
                 <div className="rounded-2xl border border-gray-100 overflow-hidden">
@@ -212,42 +182,57 @@ function WorkersManagementContent() {
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-6 flex justify-between items-center pt-4 border-t">
-                    <p className="text-xs text-gray-500">
-                        Showing {data?.data?.admins.length ?? 0} of {data?.data?.pagination.totalData ?? 0} results
-                    </p>
-                    <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" disabled={!data?.data?.pagination.hasPrevPage}>
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        {Array.from({ length: data?.data?.pagination.totalPages ?? 1 }, (_, i) => i + 1).map((p) => (
+                {pagination && (
+                    <div className="mt-6 flex justify-between items-center pt-4 border-t">
+                        <p className="text-xs text-gray-500">
+                            Showing {((currentPage - 1) * 10 + 1)} to {Math.min(currentPage * 10, pagination.totalData)} of {pagination.totalData} results
+                        </p>
+                        <div className="flex items-center gap-1">
                             <Button
-                                key={p}
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
-                                className={cn(p === data?.data?.pagination.currentPage && "bg-gray-200")}
+                                disabled={!pagination.hasPrevPage}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             >
-                                {p}
+                                <ChevronLeft className="h-4 w-4" />
                             </Button>
-                        ))}
-                        <Button variant="ghost" size="icon" disabled={!data?.data?.pagination.hasNextPage}>
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
+
+                            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                                <Button
+                                    key={p}
+                                    variant={currentPage === p ? "default" : "outline"}
+                                    size="sm"
+                                    className={cn(currentPage === p && "bg-gray-200")}
+                                    onClick={() => setCurrentPage(p)}
+                                >
+                                    {p}
+                                </Button>
+                            ))}
+
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                disabled={!pagination.hasNextPage}
+                                onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Modals */}
             <WorkerModal
                 open={isAddModalOpen}
                 onOpenChange={setIsAddModalOpen}
-                showStatusField={false} // hide status on add modal
+                showStatusField={false}
             />
             <WorkerModal
                 open={isEditModalOpen}
                 onOpenChange={setIsEditModalOpen}
                 admin={selectedAdmin}
-                showStatusField={true} // show status on edit
+                showStatusField={true}
             />
             <ViewAdminModal
                 admin={selectedAdmin}
