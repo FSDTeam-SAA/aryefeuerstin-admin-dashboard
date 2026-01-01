@@ -287,7 +287,7 @@ const navigation = [
   { name: "Membership Status", href: "/dashboard/membership-status", icon: Users, permission: "Membership Status" },
   { name: "Payment Status", href: "/dashboard/payment-status", icon: DollarSign, permission: "Payments Status" },
   { name: "Pickup History", href: "/dashboard/pickup-history", icon: CarFront, permission: "Pickup History" },
-  { name: "Order Requests", href: "/dashboard/order-requests", icon: Settings, permission: "Orders request" },
+  { name: "Order Management", href: "/dashboard/order-requests", icon: Settings, permission: "Orders request" },
   { name: "Users Management", href: "/dashboard/users-management", icon: User, permission: "User Management" },
   { name: "Workers Management", href: "/dashboard/workers-management", icon: User, permission: "All Access" },
   { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins, permission: "Subscription Management" },
