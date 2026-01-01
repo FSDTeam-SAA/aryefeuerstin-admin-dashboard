@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { CheckCircle2, User, Package, MapPin } from "lucide-react";
 
 interface AssignedDriver {
@@ -49,17 +49,17 @@ export function ShowRouteModal({
   onClose,
   responseData,
 }: ShowRouteModalProps) {
-  const router = useRouter();
+  // const router = useRouter();
 
   if (!responseData) return null;
 
   const { assignedDriver, orders, matchedOrders } = responseData;
 
-  const handleViewRoute = () => {
-    if (!assignedDriver?.id) return;
+  // const handleViewRoute = () => {
+  //   if (!assignedDriver?.id) return;
 
-    router.push(`/dashboard/route-details/${assignedDriver.id}`);
-  };
+  //   router.push(`/dashboard/route-details/${assignedDriver.id}`);
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -182,13 +182,13 @@ export function ShowRouteModal({
           <Button onClick={onClose} variant="outline" className="flex-1">
             Close
           </Button>
-          <Button
+          {/* <Button
             onClick={handleViewRoute}
             className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
           >
             <MapPin className="w-4 h-4 mr-2" />
             View Route
-          </Button>
+          </Button> */}
         </div>
       </DialogContent>
     </Dialog>

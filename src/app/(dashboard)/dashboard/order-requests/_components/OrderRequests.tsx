@@ -3,7 +3,13 @@
 
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { OrderRequestDetailsModal } from "@/components/Modal/OrderRequestDetailsModal";
+import { ShowDriversModal } from "@/components/Modal/ShowDriversModal";
+import { ShowRouteModal } from "@/components/Modal/ShowRouteModal";
 
+// UI Components
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,11 +22,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import { OrderRequestDetailsModal } from "@/components/Modal/OrderRequestDetailsModal";
-import { ShowDriversModal } from "@/components/Modal/ShowDriversModal";
-import { ShowRouteModal } from "@/components/Modal/ShowRouteModal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Order {
   _id: string;
@@ -37,19 +45,23 @@ interface Order {
   user?: {
     profileImage?: string;
   };
+  status: string;
 }
 
 interface ApiResponse {
   status: boolean;
   message: string;
   data: {
-    meta: {
-      total: number;
+    totalOrders: number;
+    items: Order[];
+    pagination: {
       page: number;
       limit: number;
-      totalPages: number;
+      total: number;
+      pages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
     };
-    orders: Order[];
   };
 }
 
@@ -62,6 +74,7 @@ const OrderRequests = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("PENDING");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -70,17 +83,18 @@ const OrderRequests = () => {
 
   // Fetch orders
   const { data, isLoading } = useQuery<ApiResponse>({
-    queryKey: ["order-requests", currentPage, searchQuery],
+    queryKey: ["order-requests", currentPage, searchQuery, selectedStatus],
     enabled: Boolean(TOKEN),
     queryFn: async () => {
       const params = new URLSearchParams({
         page: String(currentPage),
         limit: String(RESULTS_PER_PAGE),
+        status: selectedStatus,
       });
       if (searchQuery) params.append("search", searchQuery);
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/admin/orders-request?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/return-orders?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${TOKEN}` },
         }
@@ -91,11 +105,11 @@ const OrderRequests = () => {
     },
   });
 
-  const orders = data?.data.orders ?? [];
-  const totalPages = data?.data.meta.totalPages ?? 1;
-  const totalResults = data?.data.meta.total ?? 0;
+  const orders = data?.data.items ?? [];
+  const totalPages = data?.data.pagination.pages ?? 1;
+  const totalResults = data?.data.pagination.total ?? 0;
 
-  // Handle checkbox select
+  // Handle checkbox select - only for PENDING orders
   const toggleOrderSelection = (orderId: string) => {
     setSelectedOrders((prev) =>
       prev.includes(orderId)
@@ -104,13 +118,14 @@ const OrderRequests = () => {
     );
   };
 
-  const isAllSelected = orders.every((o) => selectedOrders.includes(o._id));
+  const pendingOrders = orders.filter((o) => o.status === "PENDING");
+  const isAllSelected = pendingOrders.every((o) => selectedOrders.includes(o._id));
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedOrders([]);
     } else {
-      setSelectedOrders(orders.map((o) => o._id));
+      setSelectedOrders(pendingOrders.map((o) => o._id));
     }
   };
 
@@ -141,14 +156,21 @@ const OrderRequests = () => {
       queryClient.invalidateQueries({queryKey : ["order-requests"]});
       setSelectedOrders([]);
       setSelectedDriverId(null);
-      setAssignmentResponse(data.data); // Save response data
-      setIsAssignModalOpen(false); // Driver modal close
-      setIsSuccessModalOpen(true); // Success modal open
+      setAssignmentResponse(data.data);
+      setIsAssignModalOpen(false);
+      setIsSuccessModalOpen(true);
     },
   });
 
   const handleSuccessClose = () => {
     setIsSuccessModalOpen(false);
+  };
+
+  // Reset page when status changes
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus(status);
+    setCurrentPage(1);
+    setSelectedOrders([]);
   };
 
   return (
@@ -169,13 +191,27 @@ const OrderRequests = () => {
             </div>
           </div>
 
-          {/* Search & Button */}
+          {/* Search, Filter & Button */}
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 flex-1 max-w-md">
+            <div className="flex items-center gap-2 flex-1 max-w-2xl">
+              <Select value={selectedStatus} onValueChange={handleStatusChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="ON_MY_WAY">ON_MY_WAY</SelectItem>
+                  <SelectItem value="PICKED_UP">PICKED_UP</SelectItem>
+                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Input
                 placeholder="Search by User Name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1"
               />
               <Button size="icon" className="bg-blue-500 text-white">
                 <Search className="h-4 w-4" />
@@ -200,16 +236,19 @@ const OrderRequests = () => {
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="w-12">
-                  <Checkbox
-                    checked={isAllSelected}
-                    onCheckedChange={toggleSelectAll}
-                  />
+                  {selectedStatus === "PENDING" && (
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={toggleSelectAll}
+                    />
+                  )}
                 </TableHead>
                 <TableHead>Customer Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Zip Code</TableHead>
                 <TableHead>Street</TableHead>
                 <TableHead>City</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -217,13 +256,13 @@ const OrderRequests = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-6">
+                  <TableCell colSpan={8} className="text-center py-6">
                     Loading orders...
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-6">
+                  <TableCell colSpan={8} className="text-center py-6">
                     No orders found
                   </TableCell>
                 </TableRow>
@@ -231,10 +270,12 @@ const OrderRequests = () => {
                 orders.map((order) => (
                   <TableRow key={order._id} className="hover:bg-gray-50">
                     <TableCell>
-                      <Checkbox
-                        checked={selectedOrders.includes(order._id)}
-                        onCheckedChange={() => toggleOrderSelection(order._id)}
-                      />
+                      {order.status === "PENDING" && (
+                        <Checkbox
+                          checked={selectedOrders.includes(order._id)}
+                          onCheckedChange={() => toggleOrderSelection(order._id)}
+                        />
+                      )}
                     </TableCell>
 
                     <TableCell>
@@ -256,6 +297,21 @@ const OrderRequests = () => {
                     <TableCell>{order.customer.address.zipCode}</TableCell>
                     <TableCell>{order.customer.address.street}</TableCell>
                     <TableCell>{order.customer.address.city}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          order.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : order.status === "PAID"
+                            ? "bg-green-100 text-green-800"
+                            : order.status === "FAILED"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex justify-end">
