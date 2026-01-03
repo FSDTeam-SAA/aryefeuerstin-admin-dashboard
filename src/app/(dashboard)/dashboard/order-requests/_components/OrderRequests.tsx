@@ -74,7 +74,7 @@ const OrderRequests = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("PENDING");
+  const [selectedStatus, setSelectedStatus] = useState(""); // Default empty
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -89,8 +89,13 @@ const OrderRequests = () => {
       const params = new URLSearchParams({
         page: String(currentPage),
         limit: String(RESULTS_PER_PAGE),
-        status: selectedStatus,
       });
+      
+      // Only add status filter if a status is selected
+      if (selectedStatus) {
+        params.append("status", selectedStatus);
+      }
+      
       if (searchQuery) params.append("search", searchQuery);
 
       const res = await fetch(
@@ -118,8 +123,11 @@ const OrderRequests = () => {
     );
   };
 
+  // Only PENDING orders can be selected
   const pendingOrders = orders.filter((o) => o.status === "PENDING");
-  const isAllSelected = pendingOrders.every((o) => selectedOrders.includes(o._id));
+  const isAllSelected = 
+    pendingOrders.length > 0 && 
+    pendingOrders.every((o) => selectedOrders.includes(o._id));
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
@@ -128,6 +136,9 @@ const OrderRequests = () => {
       setSelectedOrders(pendingOrders.map((o) => o._id));
     }
   };
+
+  // Check if we should show checkboxes (no status filter applied OR default data)
+  const shouldShowCheckboxes = !selectedStatus;
 
   // Mutation to assign driver
   const assignDriverMutation = useMutation({
@@ -153,7 +164,7 @@ const OrderRequests = () => {
       return res.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({queryKey : ["order-requests"]});
+      queryClient.invalidateQueries({ queryKey: ["order-requests"] });
       setSelectedOrders([]);
       setSelectedDriverId(null);
       setAssignmentResponse(data.data);
@@ -168,9 +179,9 @@ const OrderRequests = () => {
 
   // Reset page when status changes
   const handleStatusChange = (status: string) => {
-    setSelectedStatus(status);
+    setSelectedStatus(status === "all" ? "" : status);
     setCurrentPage(1);
-    setSelectedOrders([]);
+    setSelectedOrders([]); // Clear selections when status changes
   };
 
   return (
@@ -199,6 +210,7 @@ const OrderRequests = () => {
                   <SelectValue placeholder="Filter by Status" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Orders</SelectItem>
                   <SelectItem value="PENDING">PENDING</SelectItem>
                   <SelectItem value="ON_MY_WAY">ON_MY_WAY</SelectItem>
                   <SelectItem value="PICKED_UP">PICKED_UP</SelectItem>
@@ -219,13 +231,16 @@ const OrderRequests = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button
-                className="bg-cyan-400 text-white px-6"
-                disabled={selectedOrders.length === 0}
-                onClick={() => setIsAssignModalOpen(true)}
-              >
-                Create Route and Assign Driver
-              </Button>
+              {/* Only show assign button when no filter is applied (default view) and orders are selected */}
+              {shouldShowCheckboxes && (
+                <Button
+                  className="bg-cyan-400 text-white px-6"
+                  disabled={selectedOrders.length === 0}
+                  onClick={() => setIsAssignModalOpen(true)}
+                >
+                  Create Route and Assign Driver
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -236,7 +251,8 @@ const OrderRequests = () => {
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="w-12">
-                  {selectedStatus === "PENDING" && (
+                  {/* Only show "Select All" checkbox when no status filter is applied (default view) */}
+                  {shouldShowCheckboxes && (
                     <Checkbox
                       checked={isAllSelected}
                       onCheckedChange={toggleSelectAll}
@@ -270,7 +286,8 @@ const OrderRequests = () => {
                 orders.map((order) => (
                   <TableRow key={order._id} className="hover:bg-gray-50">
                     <TableCell>
-                      {order.status === "PENDING" && (
+                      {/* Only show individual checkbox when no status filter is applied (default view) */}
+                      {shouldShowCheckboxes && order.status === "PENDING" && (
                         <Checkbox
                           checked={selectedOrders.includes(order._id)}
                           onCheckedChange={() => toggleOrderSelection(order._id)}
@@ -302,9 +319,13 @@ const OrderRequests = () => {
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           order.status === "PENDING"
                             ? "bg-yellow-100 text-yellow-800"
-                            : order.status === "PAID"
+                            : order.status === "ON_MY_WAY"
+                            ? "bg-blue-100 text-blue-800"
+                            : order.status === "PICKED_UP"
+                            ? "bg-purple-100 text-purple-800"
+                            : order.status === "COMPLETED"
                             ? "bg-green-100 text-green-800"
-                            : order.status === "FAILED"
+                            : order.status === "CANCELLED"
                             ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
