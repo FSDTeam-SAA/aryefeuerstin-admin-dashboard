@@ -131,7 +131,7 @@ const PickupHistory: React.FC = () => {
                     <div className="flex items-center gap-3 py-2">
                       <Avatar className="h-10 w-10">
                         <AvatarFallback className="bg-gray-200 text-gray-700">
-                          {item.firstName[0]}{item.lastName[0]}
+                          {item?.firstName?.[0]}{item.lastName?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-medium text-gray-900">
