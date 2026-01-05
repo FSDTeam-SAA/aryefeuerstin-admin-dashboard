@@ -23,9 +23,8 @@ interface PersonalInfoForm {
 }
 
 const PersonalInformation: React.FC = () => {
-  const { data: session } = useSession();
   const queryClient = useQueryClient();
-
+  const { data: session } = useSession();
   const token = (session?.user as { accessToken?: string })?.accessToken;
 
   const [formData, setFormData] = useState<PersonalInfoForm>({

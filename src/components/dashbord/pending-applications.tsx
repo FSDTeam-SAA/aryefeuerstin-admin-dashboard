@@ -66,7 +66,7 @@ export function PendingApplications() {
   /* -------------------- UI -------------------- */
   return (
     <Card className="border border-border">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div>
           <CardTitle className="text-[18px] text-[#333733] font-semibold">
             Pending Applications
@@ -75,9 +75,9 @@ export function PendingApplications() {
             Approve pending professional profiles.
           </CardDescription>
         </div>
-        <Button variant="link" size="sm" className="text-[#064420]">
+        {/* <Button variant="link" size="sm" className="text-[#064420]">
           See all
-        </Button>
+        </Button> */}
       </CardHeader>
 
       <CardContent>
