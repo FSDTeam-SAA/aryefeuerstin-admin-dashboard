@@ -256,7 +256,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useState } from "react";
@@ -282,17 +281,79 @@ import {
 } from "lucide-react";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: "Overview" },
-  { name: "Driver Management", href: "/dashboard/driver-assignment", icon: Scooter, permission: "Drivers Management" },
-  { name: "Membership Status", href: "/dashboard/membership-status", icon: Users, permission: "Membership Status" },
-  { name: "Payment Status", href: "/dashboard/payment-status", icon: DollarSign, permission: "Payments Status" },
-  { name: "Pickup History", href: "/dashboard/pickup-history", icon: CarFront, permission: "Pickup History" },
-  { name: "Order Management", href: "/dashboard/order-requests", icon: Settings, permission: "Orders request" },
-  { name: "Users Management", href: "/dashboard/users-management", icon: User, permission: "User Management" },
-  { name: "Workers Management", href: "/dashboard/workers-management", icon: User, permission: "All Access" },
-  { name: "Subscription", href: "/dashboard/subscription-management", icon: HandCoins, permission: "Subscription Management" },
-  { name: "Driver Working Hours", href: "/dashboard/driver-working-hours", icon: HandCoins, permission: "Subscription Management" },
-  { name: "Settings", href: "/dashboard/setting", icon: Settings, permission: "Settings" },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    permission: "Overview",
+  },
+  {
+    name: "Driver Management",
+    href: "/dashboard/driver-assignment",
+    icon: Scooter,
+    permission: "Drivers Management",
+  },
+  {
+    name: "Membership Status",
+    href: "/dashboard/membership-status",
+    icon: Users,
+    permission: "Membership Status",
+  },
+  {
+    name: "Payment Status",
+    href: "/dashboard/payment-status",
+    icon: DollarSign,
+    permission: "Payments Status",
+  },
+  {
+    name: "Pickup History",
+    href: "/dashboard/pickup-history",
+    icon: CarFront,
+    permission: "Pickup History",
+  },
+  {
+    name: "Order Management",
+    href: "/dashboard/order-requests",
+    icon: Settings,
+    permission: "Orders request",
+  },
+  {
+    name: "Users Management",
+    href: "/dashboard/users-management",
+    icon: User,
+    permission: "User Management",
+  },
+  {
+    name: "Workers Management",
+    href: "/dashboard/workers-management",
+    icon: User,
+    permission: "All Access",
+  },
+  {
+    name: "Subscription",
+    href: "/dashboard/subscription-management",
+    icon: HandCoins,
+    permission: "Subscription Management",
+  },
+  {
+    name: "Driver Working Hours",
+    href: "/dashboard/driver-working-hours",
+    icon: HandCoins,
+    permission: "Subscription Management",
+  },
+  {
+    name: "Contacts Info",
+    href: "/dashboard/contact-management",
+    icon: Settings,
+    permission: "Settings",
+  },
+
+  {
+    name: "Settings",
+    href: "/dashboard/setting",
+    icon: Settings,
+    permission: "Settings",
+  },
 ];
 
 export interface SessionUser {
@@ -330,13 +391,21 @@ export function Sidebar() {
     <div className="flex h-full flex-col w-full bg-white pt-16 lg:pt-3">
       {/* Logo */}
       <div className="hidden lg:flex h-16 items-center justify-center px-6 pt-10">
-        <Image src="/logo.png" alt="logo" width={150} height={150} className="object-contain" />
+        <Image
+          src="/logo.png"
+          alt="logo"
+          width={150}
+          height={150}
+          className="object-contain"
+        />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 px-3 py-4 mt-6">
+      <nav className="flex-1 space-y-1 px-3 py-4 mt-6">
         {filteredNavigation.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
           return (
             <Link
@@ -350,7 +419,12 @@ export function Sidebar() {
                   : "text-gray-600 hover:bg-[#CD9B46]/60 hover:text-white"
               )}
             >
-              <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-gray-500")} />
+              <item.icon
+                className={cn(
+                  "h-5 w-5",
+                  isActive ? "text-white" : "text-gray-500"
+                )}
+              />
               {item.name}
             </Link>
           );
@@ -370,7 +444,9 @@ export function Sidebar() {
             />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-800">{session?.user?.name}</p>
+            <p className="text-sm font-semibold text-gray-800">
+              {session?.user?.name}
+            </p>
             <p className="text-xs text-gray-500">{session?.user?.email}</p>
           </div>
         </div>
@@ -412,20 +488,30 @@ export function Sidebar() {
       </div>
 
       {/* Overlay */}
-      {isMobileOpen && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setIsMobileOpen(false)} />}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
 
       {/* Logout Modal */}
       {isLogoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6">
             <h2 className="text-lg font-semibold">Confirm Logout</h2>
-            <p className="mt-2 text-sm text-gray-600">Are you sure you want to log out?</p>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to log out?
+            </p>
 
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setIsLogoutOpen(false)}>
                 Cancel
               </Button>
-              <Button className="bg-[#2D7A3E] text-white" onClick={() => signOut({ callbackUrl: "/login" })}>
+              <Button
+                className="bg-[#2D7A3E] text-white"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
                 Log Out
               </Button>
             </div>
