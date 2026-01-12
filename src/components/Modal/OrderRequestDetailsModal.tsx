@@ -105,7 +105,7 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Name</span>
                   <span className="font-medium">
-                    {order.customer.firstName} {order.customer.lastName}
+                    {order.customer.fullName}
                   </span>
                 </div>
                 <div className="flex justify-between">
