@@ -112,7 +112,7 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
                   <span className="text-muted-foreground">Email</span>
                   <span>{order.customer.email}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between w-full">
                   <span className="text-muted-foreground">Phone</span>
                   <span>{order.customer.phone || "N/A"}</span>
                 </div>
@@ -120,7 +120,7 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
                   <span className="text-muted-foreground">Address</span>
                   <span className="text-right">
                     {order.customer.address.street},<br />
-                    {order.customer.address.city}, {order.customer.address.zipCode}
+                    {order.customer.address.city}, {order.customer.address.zipCode}, {order.customer.unit}
                   </span>
                 </div>
               </div>

@@ -73,10 +73,10 @@ function WorkersManagementContent() {
         enabled: !!token,
     })
 
-    const handleEditClick = (admin: Admin) => {
-        setSelectedAdmin(admin)
-        setIsEditModalOpen(true)
-    }
+    // const handleEditClick = (admin: Admin) => {
+    //     setSelectedAdmin(admin)
+    //     setIsEditModalOpen(true)
+    // }
 
     const handleViewClick = (admin: Admin) => {
         setSelectedAdmin(admin)
@@ -151,14 +151,14 @@ function WorkersManagementContent() {
                                         </TableCell>
                                         <TableCell className="py-6 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Button
+                                                {/* <Button
                                                     size="sm"
                                                     variant="outline"
                                                     className="text-[10px] border-gray-300"
                                                     onClick={() => handleEditClick(member)}
                                                 >
                                                     Edit
-                                                </Button>
+                                                </Button> */}
                                                 <Button
                                                     size="sm"
                                                     className="bg-[#0EA5E9] hover:bg-blue-600 text-white text-[10px]"
