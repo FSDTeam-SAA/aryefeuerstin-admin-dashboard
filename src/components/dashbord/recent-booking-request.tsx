@@ -22,8 +22,8 @@ interface Address {
 }
 
 interface Customer {
-  firstName: string;
-  lastName: string;
+  fullName: string;
+  // lastName: string;
   email: string;
   phone?: string;
   address: Address;
@@ -200,17 +200,17 @@ export function RecentBookingRequest() {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border-2 border-primary/10">
                             <AvatarImage 
-                              src={`https://ui-avatars.com/api/?name=${order.customer.firstName}+${order.customer.lastName}&background=random`} 
-                              alt={order.customer.firstName} 
+                              src={`https://ui-avatars.com/api/?name=${order.customer.fullName}+${order.customer.fullName}&background=random`} 
+                              alt={order.customer.fullName} 
                             />
                             <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                              {order.customer.firstName.charAt(0)}
-                              {order.customer.lastName.charAt(0)}
+                              {order?.customer?.fullName?.charAt(0)}
+                              {/* {order?.customer?.lastName?.charAt(0)} */}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="font-medium text-[#333733]">
-                              {order.customer.firstName} {order.customer.lastName}
+                              {order.customer.fullName} {order.customer.fullName}
                             </p>
                             <p className="text-xs text-[#8C8F8C]">{order.customer.email}</p>
                           </div>
