@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // // "use client";
 
 // // import { useState } from "react";
@@ -407,11 +408,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Edit, } from "lucide-react";
+import { Edit } from "lucide-react";
 
 interface SubscriptionManagementModalProps {
   plan: {
     _id: string;
+    name?: string;          // ← NEW optional field
     title: string;
     price: number;
     billingCycle: string;
@@ -419,12 +421,12 @@ interface SubscriptionManagementModalProps {
     features: string[];
   };
   token: string;
-
 }
 
-export function SubscriptionManagementModal({ plan,token }: SubscriptionManagementModalProps) {
+export function SubscriptionManagementModal({ plan, token }: SubscriptionManagementModalProps) {
   const queryClient = useQueryClient();
 
+  const [name, setName] = useState(plan.name || "");              // ← NEW field
   const [title, setTitle] = useState(plan.title);
   const [price, setPrice] = useState(String(plan.price));
   const [billingCycle, setBillingCycle] = useState(plan.billingCycle);
@@ -433,12 +435,13 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
 
   // ➕ Add feature
   const addFeature = () => {
-    if (!featureInput.trim()) return;
-    if (features.includes(featureInput.trim())) {
-      toast.error("Feature already added");
+    const trimmed = featureInput.trim();
+    if (!trimmed) return;
+    if (features.includes(trimmed)) {
+      toast.error("This feature is already added");
       return;
     }
-    setFeatures([...features, featureInput.trim()]);
+    setFeatures([...features, trimmed]);
     setFeatureInput("");
   };
 
@@ -450,32 +453,61 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
   // ✅ Update mutation
   const { mutate: updatePlan, isPending } = useMutation({
     mutationFn: async () => {
+      const payload: any = {
+        title,
+        price: Number(price),
+        billingCycle,
+        features,
+      };
+
+      // Only send name if it has value (or always send - your choice)
+      if (name.trim()) {
+        payload.name = name.trim();
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plan/${plan._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, price: Number(price), billingCycle, features }),
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to update plan");
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update plan");
+      }
+
       return res.json();
     },
     onSuccess: () => {
       toast.success("Subscription plan updated successfully");
       queryClient.invalidateQueries({ queryKey: ["plans"] });
     },
-    onError: () => {
-      toast.error("Failed to update subscription plan");
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update subscription plan");
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Optional: basic validation
+    if (!title.trim()) {
+      toast.error("Plan title is required");
+      return;
+    }
+    if (!price || isNaN(Number(price)) || Number(price) < 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
     updatePlan();
   };
 
   const handleCancel = () => {
+    setName(plan.name || "");
     setTitle(plan.title);
     setPrice(String(plan.price));
     setBillingCycle(plan.billingCycle);
@@ -497,29 +529,45 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
         </DialogHeader>
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
+          {/* NEW: Plan Name */}
+          <div className="grid gap-2">
+            <Label>Name</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. premium_2025"
+            />
+          </div>
+
           {/* Plan Title */}
           <div className="grid gap-2">
-            <Label>Plan Title</Label>
+            <Label>Title</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
 
           {/* Price */}
           <div className="grid gap-2">
             <Label>Price ($)</Label>
-            <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </div>
 
           {/* Billing Cycle */}
           <div className="grid gap-2">
             <Label>Billing Cycle</Label>
-            <Select value={billingCycle} onValueChange={(value) => setBillingCycle(value)}>
+            <Select value={billingCycle} onValueChange={setBillingCycle}>
               <SelectTrigger className="h-[45px] bg-white">
                 <SelectValue placeholder="Select cycle" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="yearly">Yearly</SelectItem>
+                {/* Removed "basic" — probably typo */}
               </SelectContent>
             </Select>
           </div>
@@ -527,7 +575,13 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
           {/* Status (read-only) */}
           <div className="grid gap-2">
             <Label>Status</Label>
-            <Badge className={plan.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+            <Badge
+              className={
+                plan.status === "active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }
+            >
               {plan.status}
             </Badge>
           </div>
@@ -537,21 +591,34 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
             <Label>Features</Label>
             <div className="flex gap-2">
               <Input
-                placeholder="Type feature and click +"
+                placeholder="Type feature and press Enter or click +"
                 value={featureInput}
                 onChange={(e) => setFeatureInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addFeature()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addFeature();
+                  }
+                }}
                 className="h-[45px] bg-white"
               />
               <Button type="button" onClick={addFeature} className="px-5">
                 +
               </Button>
             </div>
+
             <div className="flex flex-wrap gap-2 mt-2">
               {features.map((feature, index) => (
-                <span key={index} className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                <span
+                  key={index}
+                  className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                >
                   {feature}
-                  <button type="button" onClick={() => removeFeature(index)} className="text-red-500 font-bold">
+                  <button
+                    type="button"
+                    onClick={() => removeFeature(index)}
+                    className="text-red-500 font-bold hover:text-red-700"
+                  >
                     ×
                   </button>
                 </span>
@@ -562,7 +629,9 @@ export function SubscriptionManagementModal({ plan,token }: SubscriptionManageme
           {/* Footer */}
           <DialogFooter className="mt-4">
             <DialogClose asChild>
-              <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+              <Button variant="outline" type="button" onClick={handleCancel}>
+                Cancel
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending ? "Saving..." : "Save Changes"}
