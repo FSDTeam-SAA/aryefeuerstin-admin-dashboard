@@ -177,7 +177,7 @@ export function DriverAssignmentModal({ driverId }: DriverAssignmentModalProps) 
             )}
 
             {/* Address Card */}
-            {data.data.address && (
+            {/* {data.data.address && (
               <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <h4 className="font-semibold text-gray-700 mb-2">Address Information</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -203,7 +203,7 @@ export function DriverAssignmentModal({ driverId }: DriverAssignmentModalProps) 
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
 
