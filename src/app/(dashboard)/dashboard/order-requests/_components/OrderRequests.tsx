@@ -257,10 +257,10 @@ const OrderRequests = () => {
                 <label className="block text-sm font-medium mb-1">Status</label>
                 <Select value={selectedStatus} onValueChange={handleStatusChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="All Statuses" />
+                    <SelectValue placeholder="UNASSIGNED" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Orders</SelectItem>
+                    <SelectItem value="all">UNASSIGNED ORDERS</SelectItem>
                     <SelectItem value="PENDING">PENDING</SelectItem>
                     <SelectItem value="ON_MY_WAY">ON MY WAY</SelectItem>
                     <SelectItem value="PICKED_UP">PICKED UP</SelectItem>

@@ -5,7 +5,7 @@ export interface Plan {
   name: string;
   price: number;
   billingCycle: "monthly" | "yearly";
-  features: string[];
+  displayFeatures: string[];
   status: "active" | "inactive";
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string

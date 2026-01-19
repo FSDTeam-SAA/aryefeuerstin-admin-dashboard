@@ -405,7 +405,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Edit } from "lucide-react";
@@ -413,66 +419,101 @@ import { Edit } from "lucide-react";
 interface SubscriptionManagementModalProps {
   plan: {
     _id: string;
-    name?: string;          // ← NEW optional field
+    name: string;
     title: string;
     price: number;
     billingCycle: string;
     status: string;
-    features: string[];
+    displayFeatures: string[];  // API response-এর সাথে মিলছে
+    numberOfPackages?: number;
+    limits?: { maxReturnOrders?: number | null };
+    entitlements?: {
+      rushService?: boolean;
+      freePhysicalReturnLabel?: boolean;
+      freePhysicalReceipt?: boolean;
+    };
   };
   token: string;
 }
 
-export function SubscriptionManagementModal({ plan, token }: SubscriptionManagementModalProps) {
+export function SubscriptionManagementModal({
+  plan,
+  token,
+}: SubscriptionManagementModalProps) {
   const queryClient = useQueryClient();
 
-  const [name, setName] = useState(plan.name || "");              // ← NEW field
+  const [name, setName] = useState(plan.name || "");
   const [title, setTitle] = useState(plan.title);
   const [price, setPrice] = useState(String(plan.price));
   const [billingCycle, setBillingCycle] = useState(plan.billingCycle);
-  const [features, setFeatures] = useState<string[]>([...plan.features]);
-  const [featureInput, setFeatureInput] = useState("");
 
-  // ➕ Add feature
+  // Fixed: Safe initialization — undefined/null হলে খালি array
+  const [displayFeatures, setDisplayFeatures] = useState<string[]>(
+    Array.isArray(plan.displayFeatures) ? [...plan.displayFeatures] : []
+  );
+
+  const [featureInput, setFeatureInput] = useState("");
+  const [numberOfPackages, setNumberOfPackages] = useState(
+    String(plan.numberOfPackages ?? 0)
+  );
+  const [maxReturnOrders, setMaxReturnOrders] = useState(
+    String(plan.limits?.maxReturnOrders ?? "")
+  );
+  const [rushService, setRushService] = useState(
+    plan.entitlements?.rushService ?? false
+  );
+  const [freePhysicalReturnLabel, setFreePhysicalReturnLabel] = useState(
+    plan.entitlements?.freePhysicalReturnLabel ?? false
+  );
+  const [freePhysicalReceipt, setFreePhysicalReceipt] = useState(
+    plan.entitlements?.freePhysicalReceipt ?? false
+  );
+
   const addFeature = () => {
     const trimmed = featureInput.trim();
     if (!trimmed) return;
-    if (features.includes(trimmed)) {
+    if (displayFeatures.includes(trimmed)) {
       toast.error("This feature is already added");
       return;
     }
-    setFeatures([...features, trimmed]);
+    setDisplayFeatures([...displayFeatures, trimmed]);
     setFeatureInput("");
   };
 
-  // ❌ Remove feature
   const removeFeature = (index: number) => {
-    setFeatures(features.filter((_, i) => i !== index));
+    setDisplayFeatures(displayFeatures.filter((_, i) => i !== index));
   };
 
-  // ✅ Update mutation
   const { mutate: updatePlan, isPending } = useMutation({
     mutationFn: async () => {
       const payload: any = {
-        title,
+        name: name.trim(),
+        title: title.trim(),
         price: Number(price),
         billingCycle,
-        features,
+        displayFeatures,  // API-এর সাথে মিলছে
+        numberOfPackages: Number(numberOfPackages) || 0,
+        limits: {
+          maxReturnOrders: maxReturnOrders ? Number(maxReturnOrders) : null,
+        },
+        entitlements: {
+          rushService,
+          freePhysicalReturnLabel,
+          freePhysicalReceipt,
+        },
       };
 
-      // Only send name if it has value (or always send - your choice)
-      if (name.trim()) {
-        payload.name = name.trim();
-      }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plan/${plan._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/plan/${plan._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
@@ -493,7 +534,6 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Optional: basic validation
     if (!title.trim()) {
       toast.error("Plan title is required");
       return;
@@ -511,7 +551,19 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
     setTitle(plan.title);
     setPrice(String(plan.price));
     setBillingCycle(plan.billingCycle);
-    setFeatures([...plan.features]);
+    
+    // Fixed: Safe reset
+    setDisplayFeatures(
+      Array.isArray(plan.displayFeatures) ? [...plan.displayFeatures] : []
+    );
+
+    setNumberOfPackages(String(plan.numberOfPackages ?? 0));
+    setMaxReturnOrders(String(plan.limits?.maxReturnOrders ?? ""));
+    setRushService(plan.entitlements?.rushService ?? false);
+    setFreePhysicalReturnLabel(
+      plan.entitlements?.freePhysicalReturnLabel ?? false
+    );
+    setFreePhysicalReceipt(plan.entitlements?.freePhysicalReceipt ?? false);
     setFeatureInput("");
   };
 
@@ -523,67 +575,78 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[900px]">
         <DialogHeader>
-          <DialogTitle>Edit Subscription</DialogTitle>
+          <DialogTitle>Edit Subscription Plan</DialogTitle>
         </DialogHeader>
 
-        <form className="grid gap-4" onSubmit={handleSubmit}>
-          {/* NEW: Plan Name */}
-          <div className="grid gap-2">
-            <Label>Name</Label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. premium_2025"
-            />
+        <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
+          {/* Name & Title */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Plan Name (unique)</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="PAY_PER_PICKUP"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Display Title</Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
           </div>
 
-          {/* Plan Title */}
-          <div className="grid gap-2">
-            <Label>Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          {/* Price & Billing Cycle */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Price ($)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Billing Cycle</Label>
+              <Select value={billingCycle} onValueChange={setBillingCycle}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* Price */}
-          <div className="grid gap-2">
-            <Label>Price ($)</Label>
-            <Input
-              type="number"
-              min="0"
-              step="0.01"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </div>
-
-          {/* Billing Cycle */}
-          <div className="grid gap-2">
-            <Label>Billing Cycle</Label>
-            <Select value={billingCycle} onValueChange={setBillingCycle}>
-              <SelectTrigger className="h-[45px] bg-white">
-                <SelectValue placeholder="Select cycle" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
-                {/* Removed "basic" — probably typo */}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Status (read-only) */}
-          <div className="grid gap-2">
-            <Label>Status</Label>
-            <Badge
-              className={
-                plan.status === "active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }
-            >
-              {plan.status}
-            </Badge>
+          {/* Number of Packages & Max Returns */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Allowed Packages</Label>
+              <Input
+                type="number"
+                min="0"
+                value={numberOfPackages}
+                onChange={(e) => setNumberOfPackages(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Max Return Orders (0 = unlimited)</Label>
+              <Input
+                type="number"
+                min="0"
+                value={maxReturnOrders}
+                onChange={(e) => setMaxReturnOrders(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Features */}
@@ -591,7 +654,7 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
             <Label>Features</Label>
             <div className="flex gap-2">
               <Input
-                placeholder="Type feature and press Enter or click +"
+                placeholder="Type feature and press Enter"
                 value={featureInput}
                 onChange={(e) => setFeatureInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -600,15 +663,14 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
                     addFeature();
                   }
                 }}
-                className="h-[45px] bg-white"
               />
-              <Button type="button" onClick={addFeature} className="px-5">
+              <Button type="button" onClick={addFeature}>
                 +
               </Button>
             </div>
 
             <div className="flex flex-wrap gap-2 mt-2">
-              {features.map((feature, index) => (
+              {displayFeatures.map((feature, index) => (
                 <span
                   key={index}
                   className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -626,8 +688,57 @@ export function SubscriptionManagementModal({ plan, token }: SubscriptionManagem
             </div>
           </div>
 
+          {/* Entitlements */}
+          <div className="grid gap-4">
+            <Label>Entitlements</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={rushService}
+                  onChange={(e) => setRushService(e.target.checked)}
+                />
+                <span>Rush Service</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={freePhysicalReturnLabel}
+                  onChange={(e) =>
+                    setFreePhysicalReturnLabel(e.target.checked)
+                  }
+                />
+                <span>Free Physical Return Label</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={freePhysicalReceipt}
+                  onChange={(e) => setFreePhysicalReceipt(e.target.checked)}
+                />
+                <span>Free Physical Receipt</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Status (read only) */}
+          <div className="grid gap-2">
+            <Label>Status</Label>
+            <Badge
+              className={
+                plan.status === "active"
+                  ? "bg-green-100 text-green-700 w-fit"
+                  : "bg-red-100 text-red-700 w-fit"
+              }
+            >
+              {plan.status}
+            </Badge>
+          </div>
+
           {/* Footer */}
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-6">
             <DialogClose asChild>
               <Button variant="outline" type="button" onClick={handleCancel}>
                 Cancel

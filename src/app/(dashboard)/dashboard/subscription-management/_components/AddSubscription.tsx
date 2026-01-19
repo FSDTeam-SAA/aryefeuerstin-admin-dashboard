@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // "use client";
 
 // import React, { useState } from "react";
@@ -247,11 +248,16 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface SubscriptionForm {
-  planName: string;
+  name: string;
+  title: string;
   price: string;
   billingCycle: string;
-  title: string;
-  packageIncludes: string[];
+  features: string[];  // Fixed: Changed displayFeatures to features for consistency
+  numberOfPackages: string;
+  maxReturnOrders: string;
+  rushService: boolean;
+  freePhysicalReturnLabel: boolean;
+  freePhysicalReceipt: boolean;
 }
 
 const AddSubscription: React.FC = () => {
@@ -259,74 +265,68 @@ const AddSubscription: React.FC = () => {
   const token = (session?.data?.user as { accessToken: string })?.accessToken;
 
   const [formData, setFormData] = useState<SubscriptionForm>({
-    planName: "",
+    name: "",
+    title: "",
     price: "",
     billingCycle: "",
-    title: "",
-    packageIncludes: [],
+    features: [],  // Fixed: Changed displayFeatures to features
+    numberOfPackages: "0",
+    maxReturnOrders: "",
+    rushService: false,
+    freePhysicalReturnLabel: false,
+    freePhysicalReceipt: false,
   });
 
   const [featureInput, setFeatureInput] = useState("");
 
   const handleCancel = () => {
     setFormData({
-      planName: "",
+      name: "",
+      title: "",
       price: "",
       billingCycle: "",
-      title: "",
-      packageIncludes: [],
+      features: [],  // Fixed: Changed displayFeatures to features
+      numberOfPackages: "0",
+      maxReturnOrders: "",
+      rushService: false,
+      freePhysicalReturnLabel: false,
+      freePhysicalReceipt: false,
     });
     setFeatureInput("");
   };
 
-  // ➕ Add feature
+  // Add feature
   const addFeature = () => {
     if (!featureInput.trim()) return;
-
-    if (formData.packageIncludes.includes(featureInput.trim())) {
+    if (formData.features.includes(featureInput.trim())) {
       toast.error("Feature already added");
       return;
     }
-
     setFormData((prev) => ({
       ...prev,
-      packageIncludes: [...prev.packageIncludes, featureInput.trim()],
+      features: [...prev.features, featureInput.trim()],  // Fixed: Changed displayFeatures to features
     }));
-
     setFeatureInput("");
   };
 
-  // ❌ Remove feature
+  // Remove feature
   const removeFeature = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      packageIncludes: prev.packageIncludes.filter((_, i) => i !== index),
+      features: prev.features.filter((_, i) => i !== index),  // Fixed: Changed displayFeatures to features
     }));
   };
 
-  const createPlan = useMutation<
-    unknown,
-    Error,
-    {
-      name: string;
-      price: number;
-      billingCycle: string;
-      title: string;
-      features: string[];
-    }
-  >({
-    mutationFn: async (body) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/plan`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        }
-      );
+  const createPlan = useMutation({
+    mutationFn: async (body: any) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -339,7 +339,7 @@ const AddSubscription: React.FC = () => {
       toast.success("Plan created successfully");
       handleCancel();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to create plan");
     },
   });
@@ -347,19 +347,30 @@ const AddSubscription: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const body = {
-      name: formData.planName,
+    const payload = {
+      name: formData.name.trim(),
+      title: formData.title.trim(),
       price: Number(formData.price),
       billingCycle: formData.billingCycle,
-      title: formData.title,
-      features: formData.packageIncludes,
+      displayFeatures: formData.features,  // Fixed: Changed displayFeatures to features
+      numberOfPackages: Number(formData.numberOfPackages) || 0,
+      limits: {
+        maxReturnOrders: formData.maxReturnOrders
+          ? Number(formData.maxReturnOrders)
+          : null,
+      },
+      entitlements: {
+        rushService: formData.rushService,
+        freePhysicalReturnLabel: formData.freePhysicalReturnLabel,
+        freePhysicalReceipt: formData.freePhysicalReceipt,
+      },
     };
 
-    createPlan.mutate(body);
+    createPlan.mutate(payload);
   };
 
   return (
-    <div className="bg-gray-50 p-6">
+    <div className="bg-gray-50">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">
@@ -373,37 +384,52 @@ const AddSubscription: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Plan Name & Price */}
+        {/* Name & Title */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Plan Name</Label>
+            <Label>Plan Name (Unique identifier)</Label>
             <Input
               type="text"
-              placeholder="Premium"
-              value={formData.planName}
+              placeholder="PAY_PER_PICKUP"
+              value={formData.name}
               onChange={(e) =>
-                setFormData({ ...formData, planName: e.target.value })
+                setFormData({ ...formData, name: e.target.value })
               }
               className="h-[45px] bg-white"
+              required
             />
           </div>
 
           <div className="space-y-2">
+            <Label>Display Title</Label>
+            <Input
+              placeholder="Pay-per-package Special"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className="h-[45px] bg-white"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Price & Billing Cycle */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
             <Label>Price</Label>
             <Input
               type="number"
-              placeholder="30"
+              placeholder="6"
               value={formData.price}
               onChange={(e) =>
                 setFormData({ ...formData, price: e.target.value })
               }
               className="h-[45px] bg-white"
+              required
             />
           </div>
-        </div>
 
-        {/* Billing Cycle & Title */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label>Billing Cycle</Label>
             <Select
@@ -416,36 +442,55 @@ const AddSubscription: React.FC = () => {
                 <SelectValue placeholder="Select cycle" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly">Monthly</SelectItem>
                 <SelectItem value="basic">Basic</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
                 <SelectItem value="yearly">Yearly</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Number of Packages & Max Return Orders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label>Number of Packages Allowed</Label>
+            <Input
+              type="number"
+              min="0"
+              placeholder="5"
+              value={formData.numberOfPackages}
+              onChange={(e) =>
+                setFormData({ ...formData, numberOfPackages: e.target.value })
+              }
+              className="h-[45px] bg-white"
+            />
+          </div>
 
           <div className="space-y-2">
-            <Label>Title</Label>
+            <Label>Max Return Orders Allowed (0 = unlimited)</Label>
             <Input
-              placeholder="Pay-per-package 2"
-              value={formData.title}
+              type="number"
+              min="0"
+              placeholder="1"
+              value={formData.maxReturnOrders}
               onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, maxReturnOrders: e.target.value })
               }
               className="h-[45px] bg-white"
             />
           </div>
         </div>
 
-        {/* Package Includes (Tag System) */}
+        {/* Features (Tag System) */}
         <div className="space-y-2">
-          <Label>This Package Includes</Label>
+          <Label>Features / Display Features</Label>
 
           <div className="flex gap-2">
             <Input
-              placeholder="Type feature and click +"
+              placeholder="Type feature and click + or press Enter"
               value={featureInput}
               onChange={(e) => setFeatureInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addFeature()}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addFeature())}
               className="h-[45px] bg-white"
             />
             <Button type="button" onClick={addFeature} className="px-5">
@@ -454,7 +499,7 @@ const AddSubscription: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-3">
-            {formData.packageIncludes.map((feature, index) => (
+            {formData.features.map((feature, index) => (  // Fixed: Changed displayFeatures to features
               <span
                 key={index}
                 className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -472,6 +517,58 @@ const AddSubscription: React.FC = () => {
           </div>
         </div>
 
+        {/* Entitlements */}
+        <div className="space-y-4">
+          <Label>Entitlements</Label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="rushService"
+                checked={formData.rushService}
+                onChange={(e) =>
+                  setFormData({ ...formData, rushService: e.target.checked })
+                }
+              />
+              <Label htmlFor="rushService">Rush Service</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="freePhysicalReturnLabel"
+                checked={formData.freePhysicalReturnLabel}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    freePhysicalReturnLabel: e.target.checked,
+                  })
+                }
+              />
+              <Label htmlFor="freePhysicalReturnLabel">
+                Free Physical Return Label
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="freePhysicalReceipt"
+                checked={formData.freePhysicalReceipt}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    freePhysicalReceipt: e.target.checked,
+                  })
+                }
+              />
+              <Label htmlFor="freePhysicalReceipt">
+                Free Physical Receipt
+              </Label>
+            </div>
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <Button
@@ -484,9 +581,10 @@ const AddSubscription: React.FC = () => {
           </Button>
           <Button
             type="submit"
+            disabled={createPlan.isPending}
             className="w-[150px] bg-[#31B8FA] hover:bg-[#31B8FA]"
           >
-            Save
+            {createPlan.isPending ? "Creating..." : "Save"}
           </Button>
         </div>
       </form>
