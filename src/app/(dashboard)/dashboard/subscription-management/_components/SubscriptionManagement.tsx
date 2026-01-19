@@ -166,7 +166,7 @@ const SubscriptionManagement: React.FC = () => {
 
                   <TableCell>{plan.totalSubscribers}</TableCell>
 
-                  <TableCell>{plan.features.length}</TableCell>
+                  <TableCell>{plan.displayFeatures?.length}</TableCell>
 
                   <TableCell>
                     {new Date(plan.createdAt).toLocaleDateString()}
@@ -187,7 +187,7 @@ const SubscriptionManagement: React.FC = () => {
                   <TableCell>
                     <div className="flex justify-end gap-2 px-4">
                       {token && (
-                        <SubscriptionManagementModal token={token} plan={plan} />
+                        <SubscriptionManagementModal token={token} plan={{ ...plan, displayFeatures: plan.displayFeatures || [] }} />
                       )}
                       <Button
                         size="icon"
