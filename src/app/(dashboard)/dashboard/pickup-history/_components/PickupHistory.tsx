@@ -29,7 +29,7 @@ interface PickupItem {
 
   // NEW FORMAT
   customer?: {
-    firstName?: string;
+    fullName?: string;
     lastName?: string;
     phone?: string;
     email?: string;
@@ -41,7 +41,7 @@ interface PickupItem {
   stores?: StoreItem[];
 
   // OLD FORMAT
-  firstName?: string;
+  fullName?: string;
   lastName?: string;
   phone?: string;
   email?: string;
@@ -74,8 +74,8 @@ const RESULTS_PER_PAGE = 10;
 
 const getName = (item: PickupItem) =>
   item.customer
-    ? `${item.customer.firstName ?? ""} ${item.customer.lastName ?? ""}`
-    : `${item.firstName ?? ""} ${item.lastName ?? ""}`;
+    ? `${item.customer.fullName ?? ""} ${item.customer.lastName ?? ""}`
+    : `${item.fullName ?? ""} ${item.lastName ?? ""}`;
 
 const getEmail = (item: PickupItem) =>
   item.customer?.email ?? item.email ?? "N/A";
@@ -110,7 +110,7 @@ const PickupHistory: React.FC = () => {
     enabled: !!TOKEN,
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/admin/pickup-history?status=COMPLETED&page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/return-order/admin/pickup-history?page=${currentPage}&limit=${RESULTS_PER_PAGE}`,
         {
           headers: {
             Authorization: `Bearer ${TOKEN}`,
