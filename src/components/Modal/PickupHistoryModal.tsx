@@ -208,7 +208,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, MapPin, Package, Phone, Mail } from "lucide-react";
+import { Eye, MapPin, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 
@@ -409,16 +409,6 @@ export function PickupHistoryModal({ pickupId }: PickupHistoryModalProps) {
                     </div>
                   ))}
                 </div>
-              </Section>
-            )}
-
-            {/* ================= PRODUCT INFO ================= */}
-            {(pickup.productLength || pickup.options) && (
-              <Section title="Product / Shipping Info">
-                <InfoRow icon={<Package className="h-4 w-4" />} label="Length" value={pickup.productLength} />
-                <InfoRow icon={<Package className="h-4 w-4" />} label="Width" value={pickup.productWidth} />
-                <InfoRow icon={<Package className="h-4 w-4" />} label="Height" value={pickup.productHeight} />
-                <InfoRow icon={<Package className="h-4 w-4" />} label="Weight" value={pickup.productWeight} />
               </Section>
             )}
 
