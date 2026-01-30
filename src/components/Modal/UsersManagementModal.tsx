@@ -117,10 +117,10 @@ export function UsersManagementModal({ userId }: UsersManagementModalProps) {
 
             {/* Info Grid */}
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <p>
+              {/* <p>
                 <span className="font-medium">Gender:</span>{" "}
                 {userData.gender || "-"}
-              </p>
+              </p> */}
 
               {/* <p>
                 <span className="font-medium">DOB:</span>{" "}
