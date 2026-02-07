@@ -302,6 +302,9 @@ const BannerManagement: React.FC = () => {
     setFormModalOpen(true);
   };
 
+
+  
+
   const handleCreateClick = () => {
   if (banners.length > 0) {
     // যদি banner থাকে, toast দেখাও
