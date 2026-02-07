@@ -96,7 +96,7 @@ const MembershipStatus: React.FC = () => {
               <TableRow className="bg-gray-50">
                 <TableHead>User Name</TableHead>
                 <TableHead>Membership Type</TableHead>
-                <TableHead>Phone Number</TableHead>
+                {/* <TableHead>Phone Number</TableHead> */}
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -135,7 +135,7 @@ const MembershipStatus: React.FC = () => {
                     </TableCell>
 
                     <TableCell>{member.membershipType}</TableCell>
-                    <TableCell>{member.phone || "N/A"}</TableCell>
+                    {/* <TableCell>{member.phone || "N/A"}</TableCell> */}
                     <TableCell>
                       {new Date(member.startDate).toLocaleDateString()} -{" "}
                       {new Date(member.endDate).toLocaleDateString()}
