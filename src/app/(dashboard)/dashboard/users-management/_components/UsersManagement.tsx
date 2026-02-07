@@ -80,7 +80,7 @@ const UsersManagement: React.FC = () => {
             <TableRow className="bg-gray-50 border-b text-black font-bold text-base">
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
-              {/* <TableHead>Phone</TableHead> */}
+              <TableHead>Phone</TableHead>
               {/* <TableHead>Gender</TableHead> */}
               {/* <TableHead>Driver Status</TableHead> */}
               <TableHead>Subscription</TableHead>
@@ -125,7 +125,7 @@ const UsersManagement: React.FC = () => {
                   <TableCell>{user.email}</TableCell>
 
                   {/* Phone */}
-                  {/* <TableCell>{user.phone || "-"}</TableCell> */}
+                  <TableCell>{user.phone || "-"}</TableCell>
 
                   {/* Gender */}
                   {/* <TableCell className="capitalize">{user.gender || "-"}</TableCell> */}
