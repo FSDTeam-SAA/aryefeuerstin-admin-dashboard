@@ -303,7 +303,7 @@ const BannerManagement: React.FC = () => {
   };
 
 
-  
+
 
   const handleCreateClick = () => {
   if (banners.length > 0) {
@@ -330,7 +330,7 @@ const BannerManagement: React.FC = () => {
   const totalResults = pagination?.total || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center">
