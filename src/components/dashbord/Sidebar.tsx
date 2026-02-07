@@ -347,6 +347,12 @@ const navigation = [
     icon: Settings,
     permission: "Settings",
   },
+   {
+    name: "Banner Management",
+    href: "/dashboard/banner-management",
+    icon: Settings,
+    permission: "Settings",
+  },
 
   {
     name: "Settings",
@@ -401,7 +407,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4 mt-6">
+      <nav className="flex-1 space-y-1 px-3 py-3 mt-6">
         {filteredNavigation.map((item) => {
           const isActive =
             pathname === item.href ||
