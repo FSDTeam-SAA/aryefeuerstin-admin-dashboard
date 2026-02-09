@@ -33,7 +33,7 @@ interface Driver {
   email: string;
   profileImage?: string;
   driverRequestStatus: "PENDING" | "APPROVED" | "REJECTED";
-  driverApprovedAt: string | null;
+  createdAt: string | null;
 }
 
 interface ApiResponse {
@@ -145,7 +145,21 @@ const DriverAssignment: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white rounded-lg shadow">
         {/* HEADER + FILTER */}
-        <div className="flex justify-end p-4">
+        <div className="p-4 flex items-center justify-between">
+          <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Driver Management
+              </h1>
+              <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                <span>Dashboard</span>
+                <span>{">"}</span>
+                <span>Driver management</span>
+              </div>
+            </div>
+          </div>
+        </div>
           <Select
             value={filter}
             onValueChange={(value: "ALL" | "PENDING") => {
@@ -199,8 +213,8 @@ const DriverAssignment: React.FC = () => {
                   </TableCell>
 
                   <TableCell>
-                    {driver.driverApprovedAt
-                      ? new Date(driver.driverApprovedAt).toLocaleDateString()
+                    {driver.createdAt
+                      ? new Date(driver.createdAt).toLocaleDateString()
                       : "—"}
                   </TableCell>
 
