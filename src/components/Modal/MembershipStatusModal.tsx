@@ -111,17 +111,37 @@ export function MembershipStatusModal({ member }: MembershipStatusModalProps) {
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold mb-2 text-gray-900">Duration</h3>
-              <p>
-                <span className="font-medium">Start Date: </span>
-                {new Date(details.startDate).toLocaleDateString()}
-              </p>
-              <p>
-                <span className="font-medium">End Date: </span>
-                {new Date(details.endDate).toLocaleDateString()}
-              </p>
-            </div>
+           <div className="bg-gray-50 rounded-lg p-4">
+  <h3 className="font-semibold mb-2 text-gray-900">Duration</h3>
+
+  <p>
+    <span className="font-medium">Start Date:</span>
+    <span className="ml-2">
+      {new Date(details.startDate).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+    </span>
+  </p>
+
+  <p>
+    <span className="font-medium">End Date:</span>
+    <span className="ml-2">
+      {new Date(details.endDate).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+    </span>
+  </p>
+</div>
+
+
           </div>
         )}
 
