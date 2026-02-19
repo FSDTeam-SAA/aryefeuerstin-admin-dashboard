@@ -278,10 +278,10 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
                 Pricing Summary
               </h3>
               <div className="space-y-2 bg-gray-50 rounded-lg p-5">
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-muted-foreground">Base Amount</span>
                   <span>${order.pricing.baseAmount}</span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
                     Extra Fees (Options + Rush)
