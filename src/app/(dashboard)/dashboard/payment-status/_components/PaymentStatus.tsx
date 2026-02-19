@@ -141,7 +141,7 @@ const PaymentStatus: React.FC = () => {
                 <TableHead className="font-semibold text-gray-700">Booking Type</TableHead>
                 <TableHead className="font-semibold text-gray-700">Amount</TableHead>
                 <TableHead className="font-semibold text-gray-700">Time</TableHead>
-                <TableHead className="font-semibold text-gray-700">Phone Number</TableHead>
+                {/* <TableHead className="font-semibold text-gray-700">Phone Number</TableHead> */}
                 <TableHead className="font-semibold text-gray-700">Date</TableHead>
                 <TableHead className="font-semibold text-gray-700 text-end">Status</TableHead>
               </TableRow>
@@ -184,7 +184,7 @@ const PaymentStatus: React.FC = () => {
                     <TableCell className="text-gray-700">
                       {new Date(item.createdAt).toLocaleTimeString()}
                     </TableCell>
-                    <TableCell className="text-gray-700">{item.user.phone || "N/A"}</TableCell>
+                    {/* <TableCell className="text-gray-700">{item.user.phone || "N/A"}</TableCell> */}
                     <TableCell className="text-gray-700">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </TableCell>
