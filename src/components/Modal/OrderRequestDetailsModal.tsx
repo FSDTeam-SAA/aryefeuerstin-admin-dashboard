@@ -184,7 +184,11 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
               <div className="space-y-4">
                 {order.stores?.map((store: any, idx: number) => (
                   <div key={idx} className="border rounded-lg p-5 bg-gray-50">
-                    <p className="font-semibold text-lg mb-2">{store.store}</p>
+                    <p className="font-semibold text-lg mb-2">
+                      {store.store === "OTHER"
+                        ? store.otherStoreName
+                        : store.store}
+                    </p>
                     <p className="text-muted-foreground mb-3">
                       Number of Packages: {store.numberOfPackages}
                     </p>
