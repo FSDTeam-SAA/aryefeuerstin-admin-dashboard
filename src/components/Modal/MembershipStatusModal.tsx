@@ -21,7 +21,7 @@ interface Membership {
   phone: string;
   hasActiveSubscription: boolean;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
   membershipType: string;
   billingCycle: string;
   price: number;
@@ -46,6 +46,8 @@ export function MembershipStatusModal({ member }: MembershipStatusModalProps) {
   });
 
   const details = singleMemberData?.data?.items?.[0] || member;
+  const shouldShowEndDate =
+    details?.membershipType !== "PAY-PER-PICKUP" && Boolean(details?.endDate);
 
   return (
     <Dialog>
@@ -127,18 +129,20 @@ export function MembershipStatusModal({ member }: MembershipStatusModalProps) {
     </span>
   </p>
 
-  <p>
-    <span className="font-medium">End Date:</span>
-    <span className="ml-2">
-      {new Date(details.endDate).toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })}
-    </span>
-  </p>
+  {shouldShowEndDate && (
+    <p>
+      <span className="font-medium">End Date:</span>
+      <span className="ml-2">
+        {new Date(details.endDate as string).toLocaleString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </span>
+    </p>
+  )}
 </div>
 
 

@@ -46,6 +46,7 @@ interface RevenueDetailResponse {
     returnOrder?: {
       _id: string;
       customer?: {
+        fullName?: string;
         firstName?: string;
         lastName?: string;
         phone?: string;
@@ -63,6 +64,7 @@ interface RevenueDetailResponse {
       };
       stores?: {
         store?: string;
+        otherStoreName?: string;
         numberOfPackages?: number;
         packages?: {
           packageNumber?: string;
@@ -206,8 +208,9 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
                 <h3 className="font-medium text-gray-800 mb-2">Return Order</h3>
                 <p>
                   <span className="font-semibold">Customer:</span>{" "}
-                  {data.data.returnOrder.customer?.firstName ?? "N/A"}{" "}
-                  {data.data.returnOrder.customer?.lastName ?? ""}
+                  {data.data.returnOrder.customer?.fullName ??
+                    (`${data.data.returnOrder.customer?.firstName ?? ""} ${data.data.returnOrder.customer?.lastName ?? ""}`.trim() ||
+                    "N/A")}
                 </p>
                 <p>
                   <span className="font-semibold">Phone:</span>{" "}
@@ -226,7 +229,10 @@ export function PaymentStatusModal({ revenueId }: PaymentStatusModalProps) {
                   <div key={index} className="mt-2 border-t pt-2">
                     <p>
                       <span className="font-semibold">Store:</span>{" "}
-                      {store.store ?? "N/A"} ({store.numberOfPackages ?? 0} packages)
+                      {store.store === "OTHER"
+                        ? store.otherStoreName ?? "OTHER"
+                        : store.store ?? "N/A"}{" "}
+                      ({store.numberOfPackages ?? 0} packages)
                     </p>
                     {store.packages?.map((pkg, idx) => (
                       <div key={idx} className="mt-1">

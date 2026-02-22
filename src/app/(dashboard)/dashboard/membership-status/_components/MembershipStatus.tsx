@@ -22,7 +22,7 @@ interface Membership {
   phone: string;
   hasActiveSubscription: boolean;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
   membershipType: string;
   billingCycle: string;
   price: number;
@@ -137,8 +137,10 @@ const MembershipStatus: React.FC = () => {
                     <TableCell>{member.membershipType}</TableCell>
                     {/* <TableCell>{member.phone || "N/A"}</TableCell> */}
                     <TableCell>
-                      {new Date(member.startDate).toLocaleDateString()} -{" "}
-                      {new Date(member.endDate).toLocaleDateString()}
+                      {new Date(member.startDate).toLocaleDateString()}
+                      {member.membershipType !== "PAY-PER-PICKUP" && member.endDate
+                        ? ` - ${new Date(member.endDate).toLocaleDateString()}`
+                        : ""}
                     </TableCell>
 
                     <TableCell>
