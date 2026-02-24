@@ -27,6 +27,7 @@ interface Order {
   stores: Array<{
     store: string;
     numberOfPackages: number;
+    otherStoreName: string;
   }>;
   assignmentStatus: string;
 }
@@ -158,15 +159,16 @@ export function ShowRouteModal({
                       📱 {order.customer.phone}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {order.stores.map((store, idx) => (
-                        <span
-                          key={idx}
-                          className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium"
-                        >
-                          {store.store} • {store.numberOfPackages} pkg
-                        </span>
-                      ))}
-                    </div>
+  {order.stores.map((store, idx) => (
+    <span
+      key={idx}
+      className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium"
+    >
+      {(store.store === "OTHER" ? store.otherStoreName : store.store)} •{" "}
+      {store.numberOfPackages} pkg
+    </span>
+  ))}
+</div>
                   </div>
                   <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">
                     {order.assignmentStatus}
