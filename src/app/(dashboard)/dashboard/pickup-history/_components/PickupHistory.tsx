@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react";
 interface StoreItem {
   store: string;
   numberOfPackages: number;
+  otherStoreName: string;
 }
 
 interface PickupItem {
@@ -89,7 +90,11 @@ const getPickupAddress = (item: PickupItem) =>
   "N/A";
 
 const getReturnStore = (item: PickupItem) =>
-  item.stores?.map((s) => s.store).join(", ") ??
+  item.stores?.map((s) =>
+    s.store === "OTHER" && s.otherStoreName
+      ? s.otherStoreName
+      : s.store
+  ).join(", ") ??
   item.returnStore ??
   "N/A";
 
