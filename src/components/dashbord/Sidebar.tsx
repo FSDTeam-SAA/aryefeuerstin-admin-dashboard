@@ -342,16 +342,16 @@ const navigation = [
     permission: "Subscription Management",
   },
   {
-    name: "Contacts Info",
+    name: "Contact Management",
     href: "/dashboard/contact-management",
     icon: Settings,
-    permission: "Settings",
+    permission: "Contacts Management",
   },
    {
     name: "Banner Management",
     href: "/dashboard/banner-management",
     icon: Settings,
-    permission: "Settings",
+    permission: "Banner Management",
   },
 
   {
@@ -378,6 +378,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user as SessionUser | undefined;
+
+  console.log(session, "SESSION")
 
   const permissions: string[] = user?.permissions ?? [];
   const role = user?.role;
@@ -450,9 +452,9 @@ export function Sidebar() {
             />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-800">
+            {/* <p className="text-sm font-semibold text-gray-800">
               {session?.user?.name}
-            </p>
+            </p> */}
             <p className="text-xs text-gray-500">{session?.user?.email}</p>
           </div>
         </div>

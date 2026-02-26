@@ -56,6 +56,11 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
     return fileUrl.toLowerCase().endsWith(".pdf");
   };
 
+
+  const isFreePhysicalLabel = order.user.subscription.planId.entitlements.freePhysicalReturnLabel;
+const isFreePhysicalReceipt = order.user.subscription.planId.entitlements.freePhysicalReceipt;
+// const rushServiceEnabled = order.user.subscription.planId.entitlements.rushService;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -226,24 +231,49 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
               <h3 className="text-lg font-semibold border-b pb-2 mb-3">
                 Selected Options
               </h3>
+
+
               <div className="flex flex-wrap gap-3">
-                {order.options?.physicalReturnLabel?.enabled && (
-                  <Badge variant="default" className="px-4 py-2">
-                    Physical Return Label (+$
-                    {order.options.physicalReturnLabel.fee})
-                  </Badge>
-                )}
-                {order.options?.physicalReceipt?.enabled && (
-                  <Badge variant="default" className="px-4 py-2">
-                    Physical Receipt (+${order.options.physicalReceipt.fee})
-                  </Badge>
-                )}
-                {order.rushService?.enabled && (
-                  <Badge variant="destructive" className="px-4 py-2">
-                    Rush Service (+${order.rushService.fee})
-                  </Badge>
-                )}
-              </div>
+  {order.options?.physicalReturnLabel?.enabled && (
+    <Badge variant="default" className="px-4 py-2">
+      Physical Return Label{" "}
+      {!isFreePhysicalLabel ? (
+        <span className="text-green-600 font-medium">(Free with plan)</span>
+      ) : (
+        <span className="text-amber-700">
+          (+${order.options.physicalReturnLabel.fee || 3.5})
+        </span>
+      )}
+    </Badge>
+  )}
+
+  {order.options?.physicalReceipt?.enabled && (
+    <Badge variant="default" className="px-4 py-2">
+      Physical Receipt{" "}
+      {!isFreePhysicalReceipt ? (
+        <span className="text-green-600 font-medium">(Free with plan)</span>
+      ) : (
+        <span className="text-amber-700">
+          (+${order.options.physicalReceipt.fee || 8}) - Last 4 digits:{" "}
+          {order.options.physicalReceipt.creditCardLast4 || "N/A"}
+        </span>
+      )}
+    </Badge>
+  )}
+
+  {order.rushService?.enabled && (
+    <Badge variant="destructive" className="px-4 py-2">
+      Rush Service (+${order.rushService.fee})
+    </Badge>
+  )}
+
+  {order.options?.message?.enabled && (
+    <Badge variant="default" className="px-4 py-2">
+      Leave Message
+    </Badge>
+  )}
+</div>
+              
 
               {/* Show Physical Return Label - PDF or Image */}
               {order.options?.physicalReturnLabel?.labelFiles?.length > 0 && (

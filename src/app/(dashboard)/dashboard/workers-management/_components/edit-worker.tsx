@@ -42,8 +42,10 @@ const PERMISSIONS = [
     "Orders request",
     "User Management",
     "Subscription Management",
+    "Banner Management",
+    "Contacts Management",
     "Settings",
-    "All Access"
+    "All Access",
 ]
 
 export default function WorkerModal({
