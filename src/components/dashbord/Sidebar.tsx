@@ -279,6 +279,7 @@ import {
   X,
   LogOut,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const navigation = [
   {
@@ -347,7 +348,7 @@ const navigation = [
     icon: Settings,
     permission: "Contacts Management",
   },
-   {
+  {
     name: "Banner Management",
     href: "/dashboard/banner-management",
     icon: Settings,
@@ -379,7 +380,7 @@ export function Sidebar() {
   const { data: session } = useSession();
   const user = session?.user as SessionUser | undefined;
 
-  console.log(session, "SESSION")
+  console.log(session, "SESSION");
 
   const permissions: string[] = user?.permissions ?? [];
   const role = user?.role;
@@ -393,6 +394,30 @@ export function Sidebar() {
       return item.permission && permissions.includes(item.permission);
     }
     return false;
+  });
+
+  // const session = useSession();
+  const TOKEN = session?.user?.accessToken || ""; // Ensure
+  const { data: userData } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`,
+          },
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch user profile");
+      }
+
+      return res.json();
+    },
   });
 
   const SidebarContent = () => (
@@ -424,13 +449,13 @@ export function Sidebar() {
                 "flex items-center gap-3 px-3 h-12 rounded-md text-sm font-semibold transition",
                 isActive
                   ? "bg-[#CD9B46] text-white"
-                  : "text-gray-600 hover:bg-[#CD9B46]/60 hover:text-white"
+                  : "text-gray-600 hover:bg-[#CD9B46]/60 hover:text-white",
               )}
             >
               <item.icon
                 className={cn(
                   "h-5 w-5",
-                  isActive ? "text-white" : "text-gray-500"
+                  isActive ? "text-white" : "text-gray-500",
                 )}
               />
               {item.name}
@@ -442,12 +467,12 @@ export function Sidebar() {
       {/* User Info + Logout */}
       <div className="p-6 border-t">
         <div className="flex items-center gap-3 mb-4">
-          <div className="border rounded-full w-10 h-10">
+          <div className="border rounded-full w-10 h-10 overflow-hidden flex-shrink-0">
             <Image
-              src={session?.user?.profileImage || "/avatar.png"}
+              src={userData?.data?.user?.profileImage || "/avatar.png"}
               alt="avatar"
-              width={900}
-              height={900}
+              width={40}
+              height={40}
               className="object-cover w-full h-full rounded-full"
             />
           </div>
@@ -489,7 +514,7 @@ export function Sidebar() {
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 transform bg-white transition-transform lg:hidden",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <SidebarContent />
