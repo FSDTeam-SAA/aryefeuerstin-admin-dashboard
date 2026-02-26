@@ -17,7 +17,7 @@ export function DashboardHeader() {
     <header className="fixed top-0 left-0 right-0 z-40 lg:pl-64">
       <div className="flex items-center justify-end px-6 py-4 bg-[#FFFFFF]">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-white">{userName}</span>
+          {/* <span className="text-sm font-medium text-white">{userName}</span> */}
           <Avatar className="h-8 w-8">
             <AvatarImage src={avatarImage || session?.user?.profileImage} alt={userName} />
             <AvatarFallback>{initials}</AvatarFallback>

@@ -96,6 +96,8 @@ const routePermissions: Record<string, string> = {
   "/dashboard/subscription-management": "Subscription Management",
   "/dashboard/driver-working-hours": "Subscription Management",
   "/dashboard/setting": "Settings",
+  "/dashboard/contacts-management": "Contacts Management",
+  "/dashboard/banner-management": "Banner Management",
 };
 
 export async function middleware(request: NextRequest) {
