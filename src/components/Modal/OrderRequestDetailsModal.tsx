@@ -57,9 +57,9 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
   };
 
 
-  const isFreePhysicalLabel = order.user.subscription.planId.entitlements.freePhysicalReturnLabel;
-const isFreePhysicalReceipt = order.user.subscription.planId.entitlements.freePhysicalReceipt;
-// const rushServiceEnabled = order.user.subscription.planId.entitlements.rushService;
+  const isFreePhysicalLabel = order?.user?.subscription?.planId?.entitlements?.freePhysicalReturnLabel;
+  const isFreePhysicalReceipt = order?.user?.subscription?.planId?.entitlements?.freePhysicalReceipt;
+  // const rushServiceEnabled = order.user.subscription.planId.entitlements.rushService;
 
   return (
     <Dialog>
