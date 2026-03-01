@@ -102,9 +102,16 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
     <span className="text-sm font-semibold text-[#00253E] whitespace-nowrap">
       📅 Date & Time:
     </span>
-    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-      {new Date(order.createdAt).toLocaleString()}
-    </span>
+  <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+  {new Date(order.createdAt).toLocaleString([], {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true, // optional (remove if you want 24h format)
+  })}
+</span>
   </div>
 
   <Badge className="h-10 px-4 text-sm flex items-center">
