@@ -95,39 +95,44 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
         {order && (
           <div className="space-y-7 text-sm mt-4">
             {/* Status Badges */}
-<div className="flex flex-wrap gap-3 items-center">
+            <div className="flex flex-wrap gap-3 items-center">
+              {/* Order Created Date */}
+              <div className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-[#F4F9F2] border border-[#BADA55]">
+                <span className="text-sm font-semibold text-[#00253E] whitespace-nowrap">
+                  📅 Date & Time:
+                </span>
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  {new Date(order.createdAt).toLocaleString([], {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true, // optional (remove if you want 24h format)
+                  })}
+                </span>
+              </div>
 
-  {/* Order Created Date */}
-  <div className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-[#F4F9F2] border border-[#BADA55]">
-    <span className="text-sm font-semibold text-[#00253E] whitespace-nowrap">
-      📅 Date & Time:
-    </span>
-  <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-  {new Date(order.createdAt).toLocaleString([], {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true, // optional (remove if you want 24h format)
-  })}
-</span>
-  </div>
+              <Badge className="h-10 px-4 text-sm flex items-center">
+                {order.status}
+              </Badge>
 
-  <Badge className="h-10 px-4 text-sm flex items-center">
-    {order.status}
-  </Badge>
+              <Badge
+                variant="outline"
+                className="h-10 px-4 text-sm flex items-center"
+              >
+                Payment: {order.paymentStatus}
+              </Badge>
 
-  <Badge variant="outline" className="h-10 px-4 text-sm flex items-center">
-    Payment: {order.paymentStatus}
-  </Badge>
-
-  {order.rushService?.enabled && (
-    <Badge variant="destructive" className="h-10 px-4 text-sm flex items-center">
-      RUSH SERVICE
-    </Badge>
-  )}
-</div>
+              {order.rushService?.enabled && (
+                <Badge
+                  variant="destructive"
+                  className="h-10 px-4 text-sm flex items-center"
+                >
+                  RUSH SERVICE
+                </Badge>
+              )}
+            </div>
 
             {/* Customer Information */}
             <div>
@@ -148,13 +153,33 @@ export function OrderRequestDetailsModal({ orderRequestId }: Props) {
                   <span>{order.customer.phone || "N/A"}</span>
                 </div>
                 <div className="flex justify-between md:col-span-2">
-                  <span className="text-muted-foreground">Address</span>
-                  <span className="text-right">
-                    {order.customer.address.street},<br />
-                    {order.customer.address.city},{" "}
-                    {order.customer.address.zipCode}, {order.customer.unit}
-                  </span>
-                </div>
+  <span className="text-muted-foreground">Address</span>
+  <span className="text-right">
+    {order.customer.pickupLocation?.address ? (
+      <>
+        {order.customer.pickupLocation.address}
+        {order.customer.unit && `, Unit ${order.customer.unit}`}
+        <br />
+        {order.customer.address?.city && (
+          <>
+            {order.customer.address.city}, {order.customer.address.state},{" "}
+            {order.customer.address.zipCode}
+          </>
+        )}
+      </>
+    ) : order.customer.address ? (
+      <>
+        {order.customer.address.street}
+        {order.customer.unit && `, Unit ${order.customer.unit}`}
+        <br />
+        {order.customer.address.city}, {order.customer.address.state},{" "}
+        {order.customer.address.zipCode}
+      </>
+    ) : (
+      "N/A"
+    )}
+  </span>
+</div>
                 <div className="mt-3 flex items-center gap-3 text-sm">
                   <span className="text-gray-600">Card Last 4 Digits</span>
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
