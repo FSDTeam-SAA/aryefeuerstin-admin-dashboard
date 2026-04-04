@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -55,6 +55,79 @@ const DeleteConfirmationModal: React.FC<{
   );
 };
 
+const ViewContactModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  contact: Contact | null;
+}> = ({ isOpen, onClose, contact }) => {
+  if (!isOpen || !contact) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between border-b bg-gradient-to-r from-slate-50 to-gray-100 px-6 py-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Contact Details
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Submitted by {contact.name}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="overflow-y-auto p-6">
+          <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+            <div className="rounded-lg border bg-gray-50 p-3">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                Name
+              </p>
+              <p className="font-medium text-gray-900">{contact.name}</p>
+            </div>
+            <div className="rounded-lg border bg-gray-50 p-3">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                Phone
+              </p>
+              <p className="font-medium text-gray-900">{contact.phone}</p>
+            </div>
+            <div className="rounded-lg border bg-gray-50 p-3 md:col-span-2">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+                Email
+              </p>
+              <p className="font-medium text-gray-900 break-all">
+                {contact.email}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-lg border bg-white p-4">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+              Message
+            </p>
+            <p className="whitespace-pre-wrap break-words rounded-md bg-gray-50 p-3 text-sm text-gray-700">
+              {contact.message || "No message provided."}
+            </p>
+          </div>
+
+          <div className="mt-5 flex justify-end">
+            <Button onClick={onClose} className="px-6">
+              Close
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* -------------------- PAGE -------------------- */
 
 interface Contact {
@@ -72,6 +145,7 @@ const RESULTS_PER_PAGE = 10;
 const ContactPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   const { data: session } = useSession();
@@ -127,6 +201,11 @@ const ContactPage: React.FC = () => {
     if (selectedContact) {
       deleteMutation.mutate(selectedContact._id);
     }
+  };
+
+  const handleViewClick = (contact: Contact) => {
+    setSelectedContact(contact);
+    setViewModalOpen(true);
   };
 
   const contacts: Contact[] = data?.data || [];
@@ -192,6 +271,14 @@ const ContactPage: React.FC = () => {
                   <TableCell className="flex justify-end mr-4">
                     <Button
                       size="icon"
+                      variant="outline"
+                      className="h-9 w-9 mr-2"
+                      onClick={() => handleViewClick(contact)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
                       className="h-9 w-9 bg-red-600 hover:bg-red-700 text-white"
                       disabled={deleteMutation.isPending}
                       onClick={() => handleDeleteClick(contact)}
@@ -249,6 +336,12 @@ const ContactPage: React.FC = () => {
       </div>
 
       {/* Delete Modal */}
+      <ViewContactModal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        contact={selectedContact}
+      />
+
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
