@@ -86,7 +86,7 @@ export function UsersManagementModal({ userId }: UsersManagementModalProps) {
       <DialogContent className="max-w-xl rounded-xl p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            User Details
+            User Details 
           </DialogTitle>
         </DialogHeader>
 
@@ -139,15 +139,15 @@ export function UsersManagementModal({ userId }: UsersManagementModalProps) {
                 {userData.hasActiveSubscription ? "Active" : "Inactive"}
               </p>
 
-              <p>
+              {/* <p>
                 <span className="font-medium">Driver Status:</span>{" "}
                 {userData.driverRequestStatus}
-              </p>
+              </p> */}
 
-              <p>
+              {/* <p>
                 <span className="font-medium">Language:</span>{" "}
                 {userData.language}
-              </p>
+              </p> */}
             </div>
 
             {/* Bio */}
